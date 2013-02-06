@@ -1,6 +1,7 @@
 package org.vaadin.googleanalytics.tracking;
 
 import com.vaadin.annotations.JavaScript;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.AbstractJavaScriptExtension;
 import com.vaadin.ui.UI;
 
@@ -14,10 +15,20 @@ import com.vaadin.ui.UI;
  * tracker.trackPageview("/samplecode/googleanalytics");
  * </pre>
  * 
+ * To connect it to a Navigator to automatically track page views, you can do
+ * 
+ * <pre>
+ * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(&quot;UA-658457-8&quot;,
+ *         &quot;vaadin.com&quot;);
+ * tracker.extend(myUI);
+ * myUI.getNavigator().addViewChangeListener(tracker);
+ * </pre>
+ * 
  * @author Sami Ekblad / Marc Englund / Artur Signell
  */
 @JavaScript({ "https://www.google-analytics.com/ga.js", "tracker_extension.js" })
-public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension {
+public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
+        implements ViewChangeListener {
 
     /**
      * Instantiate new Google Analytics tracker by id.
@@ -115,5 +126,15 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension {
      */
     public void extend(UI target) {
         super.extend(target);
+    }
+
+    @Override
+    public boolean beforeViewChange(ViewChangeEvent event) {
+        return true;
+    }
+
+    @Override
+    public void afterViewChange(ViewChangeEvent event) {
+        trackPageview(event.getViewName());
     }
 }
