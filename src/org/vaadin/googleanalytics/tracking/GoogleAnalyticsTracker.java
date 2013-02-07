@@ -7,28 +7,30 @@ import com.vaadin.ui.UI;
 
 /**
  * Component for triggering Google Analytics page views. Usage:
- * 
+ *
  * <pre>
  * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker("UA-658457-8", "vaadin.com");
  * tracker.extend(myUI);
  *   ....
  * tracker.trackPageview("/samplecode/googleanalytics");
  * </pre>
- * 
+ *
  * To connect it to a Navigator to automatically track page views, you can do
- * 
+ *
  * <pre>
  * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(&quot;UA-658457-8&quot;,
  *         &quot;vaadin.com&quot;);
  * tracker.extend(myUI);
  * myUI.getNavigator().addViewChangeListener(tracker);
  * </pre>
- * 
+ *
  * @author Sami Ekblad / Marc Englund / Artur Signell
  */
 @JavaScript({ "https://www.google-analytics.com/ga.js", "tracker_extension.js" })
 public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
         implements ViewChangeListener {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Instantiate new Google Analytics tracker by id.
@@ -38,7 +40,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 
     /**
      * Instantiate new Google Analytics tracker by id.
-     * 
+     *
      * @param trackerId
      *            The tracking id from Google Analytics. Something like
      *            'UA-658457-8'.
@@ -49,7 +51,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 
     /**
      * Instantiate new Google Analytics tracker by id and domain.
-     * 
+     *
      * @param trackerId
      *            The tracking id from Google Analytics. Something like
      *            'UA-658457-8'.
@@ -64,7 +66,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 
     /**
      * Get the domain name associated with this tracker.
-     * 
+     *
      * @return The domain name
      */
     public String getDomainName() {
@@ -73,7 +75,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 
     /**
      * Sets the domain name you are tracking
-     * 
+     *
      * @param domainName
      *            The domain name
      */
@@ -89,16 +91,32 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 
     /**
      * Gets the Google Analytics tracking id.
-     * 
+     *
      * @return Tracking id like 'UA-658457-8'.
      */
     public String getTrackerId() {
         return getState().trackerId;
     }
 
+    /** This method sets the # sign as the query string delimiter in campaign tracking.
+     *
+     * @see https://developers.google.com/analytics/devguides/collection/gajs/methods/
+     */
+    public void setAllowAnchor(boolean allowAnchor) {
+        getState().allowAnchor = allowAnchor;
+    }
+
+    /** This method sets the # sign as the query string delimiter in campaign tracking.
+     *
+     * @see https://developers.google.com/analytics/devguides/collection/gajs/methods/
+     */
+    public boolean isAllowAnchor() {
+        return getState().allowAnchor;
+    }
+
     /**
      * Sets the Google Analytics tracking id.
-     * 
+     *
      * @param trackerId
      *            The tracking id like 'UA-586743-2'
      */
@@ -109,18 +127,18 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     /**
      * Track a single page view. This effectively invokes the 'trackPageview' in
      * ga.js file.
-     * 
+     *
      * @param pageId
      *            The page id. Use a scheme like '/topic/page' or
      *            '/view/action'.
      */
     public void trackPageview(String pageId) {
-        getRpcProxy(GoogleAnalyticsTrackerClientRpc.class).track(pageId);
+        callFunction("track", pageId);
     }
 
     /**
      * Attach this analytics component to a UI to enable tracking
-     * 
+     *
      * @param target
      *            The UI to track
      */
