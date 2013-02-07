@@ -13,6 +13,7 @@
 			<!-- Vaadin snapshots repository -->
 			<ibiblio name="vaadin-snapshots" usepoms="true" m2compatible="true"
 				root="https://oss.sonatype.org/content/repositories/vaadin-snapshots" />
+			
 			<!-- Repository used for Vaadin modified smartsprites library -->
 			<dual name="custom-smartsprites">
 				<filesystem name="smartsprites-ivy">
