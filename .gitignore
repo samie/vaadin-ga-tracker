@@ -4,3 +4,7 @@
 *.jar
 *.war
 *.ear
+/vaadin-ga-tracker/vaadin-ga-tracker/target/
+/vaadin-ga-tracker/vaadin-ga-tracker-demo/target/
+/demo/target/
+/addon/target/
