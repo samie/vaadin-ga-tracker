@@ -57,8 +57,9 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         var trackerId = state.trackerId;
         var domainName = state.domainName;
         var allowAnchor = state.allowAnchor;
+        var userId = state.userId;
 
-        window._gaut('create', trackerId, {'cookieDomain': domainName, 'allowAnchor': allowAnchor});
+        window._gaut('create', trackerId, {'cookieDomain': domainName, 'allowAnchor': allowAnchor, 'userId': userId});
     };
 
 
@@ -69,7 +70,7 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
             self.legacyTrack(pageId);
         }
     };
-
+    
     this.legacyTrack = function(pageId) {
 
         if (pageId) {
