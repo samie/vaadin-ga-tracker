@@ -9,5 +9,6 @@ public class GoogleAnalyticsTrackerState extends JavaScriptExtensionState {
     public String trackerId;
     public boolean allowAnchor = true;
     public String domainName  = "none";
+    public String userId = null;
 
 }

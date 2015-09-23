@@ -31,6 +31,9 @@ public class GoogleAnalyticsTrackerDemo extends UI {
         // Example: Create a tracker for vaadin.com domain.
         // GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(
         // "UA-658457-8", "vaadin.com");
+        
+        tracker.setUserId("12345"); //optional: set the User-ID. Must also enable User-ID tracking within Google Analytics admin.
+        
         // attach the GA tracker to this UI
         tracker.extend(this);
 

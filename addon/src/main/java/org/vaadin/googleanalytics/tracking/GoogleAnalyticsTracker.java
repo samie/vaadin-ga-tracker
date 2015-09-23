@@ -102,6 +102,21 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
         setTrackingPrefix(trackingPrefix);
     }
 
+	    /**
+	  * Instantiate new Google Analytics tracker by id and domain.
+	  *
+	  * @param trackerId The tracking id from Google Analytics. Something like
+	  * 'UA-658457-8'.
+	  * @param domainName The name of the domain to be tracked. Something like
+	  * 'vaadin.com'. Universal tracker is created by default.
+	  * @param userId a unique, persistent, and non-personally identifiable string ID.
+	  */
+	 public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix, String userId) {
+	     this(trackerId);
+	     setDomainName(domainName);
+	     setTrackingPrefix(trackingPrefix);
+	     setUserId(userId);
+	 }
 
     /**
      * Get the domain name associated with this tracker.
@@ -199,6 +214,36 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     public void setTrackerId(String trackerId) {
         getState().trackerId = trackerId;
     }
+    
+	/**
+	 * Sets the UserId to send to Google Analytics. The User-ID feature must be
+	 * enabled within the Google Analytics admin for User-ID tracking to work.
+	 * See the Google Analytics documentation for more information. User-ID
+	 * tracking is only available if using the universal tracker.
+	 *
+	 * @param userId
+	 *            a unique, persistent, and non-personally identifiable string
+	 *            ID.
+	 * @throws UnsupportedOperationException
+	 *             when attempting to call this method and not using universal
+	 *             tracking mode.
+	 */
+	public void setUserId(String userId) throws UnsupportedOperationException {
+		if (!getState().universalTracking)
+			throw new UnsupportedOperationException(
+					"User-ID tracking only supported when using universal tracking mode.");
+		getState().userId = userId;
+	}
+    
+    /**
+     * Gets the User-ID that was previously set.
+     * 
+     * @return
+     */
+    public String getUserId() {
+    	return getState().userId;
+    }
+    
 
     /**
      * Track a single page view. This effectively invokes the 'trackPageview' in
