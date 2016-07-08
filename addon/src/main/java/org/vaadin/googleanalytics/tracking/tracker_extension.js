@@ -63,12 +63,21 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
     };
 
 
-    this.track = function(pageId) {
+    this.trackPageView = function(pageId) {
         if (self.getState().universalTracking) {
             self.universalTrack(pageId);
         } else {
             self.legacyTrack(pageId);
         }
+    };
+    
+    this.trackEvent = function (eventCategory, eventAction, eventLabel) {
+        window._gaut('send', {
+                        hitType: 'event',
+                        eventCategory: eventCategory,
+                        eventAction: eventAction,
+                        eventLabel: eventLabel
+                    })
     };
     
     this.legacyTrack = function(pageId) {

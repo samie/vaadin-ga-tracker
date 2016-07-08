@@ -8,3 +8,7 @@
 /vaadin-ga-tracker/vaadin-ga-tracker-demo/target/
 /demo/target/
 /addon/target/
+
+# IDE Files
+.idea
+*.iml

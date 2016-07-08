@@ -230,8 +230,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 	 */
 	public void setUserId(String userId) throws UnsupportedOperationException {
 		if (!getState().universalTracking)
-			throw new UnsupportedOperationException(
-					"User-ID tracking only supported when using universal tracking mode.");
+			throw new UnsupportedOperationException("User-ID tracking only supported when using universal tracking mode.");
 		getState().userId = userId;
 	}
     
@@ -253,7 +252,21 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * '/view/action'.
      */
     public void trackPageview(String pageId) {
-        callFunction("track", trackingPrefix != null && trackingPrefix.length() > 0? trackingPrefix+pageId: pageId);
+        callFunction("trackPageView", trackingPrefix != null && trackingPrefix.length() > 0 ? trackingPrefix + pageId : pageId);
+    }
+
+    /**
+     * Track an event. See the Google Analytics documentation for more information.
+     * Event tracking is only available if using the universal tracker.
+     *
+     * @throws UnsupportedOperationException
+	 *             when attempting to call this method and not using universal
+	 *             tracking mode.
+     */
+    public void trackEvent(String eventCategory, String eventAction, String eventLabel) {
+        if (!getState().universalTracking)
+			throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
+        callFunction("trackEvent", eventCategory, eventAction, eventLabel);
     }
 
     /**
