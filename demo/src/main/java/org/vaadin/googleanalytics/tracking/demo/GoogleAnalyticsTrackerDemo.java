@@ -48,6 +48,7 @@ public class GoogleAnalyticsTrackerDemo extends UI {
         // tracker.trackPageview(pageId) separately when tracking is needed.
         getNavigator().addViewChangeListener(tracker);
 
+        // Track
         tracker.trackEvent("someCategory","someAction", "someLabel");
     }
 }
