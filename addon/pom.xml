@@ -4,8 +4,13 @@
     <groupId>org.vaadin.addons</groupId>
     <artifactId>googleanalyticstracker</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.1-SNAPSHOT</version>
     <name>GoogleAnalyticsTracker</name>
+    <parent>
+        <groupId>org.vaadin.addons</groupId>
+        <artifactId>googleanalyticstracker-addon</artifactId>
+        <version>2.1.1-SNAPSHOT</version>
+    </parent>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
