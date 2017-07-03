@@ -3,11 +3,68 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.vaadin.addons</groupId>
-	<artifactId>googleanalyticstracker-root</artifactId>
+	<artifactId>googleanalyticstracker-addon</artifactId>
 	<packaging>pom</packaging>
 	<version>2.1.1-SNAPSHOT</version>
-	<name>GoogleAnalyticsTracker Add-on Root Project</name>
+	<name>GoogleAnalyticsTracker Add-on Project</name>
 
+	<organization>
+		<name>Sami Ekblad</name>
+		<url>https://github.com/samie/vaadin-ga-tracker</url>
+	</organization>
+
+	<scm>
+		<url>git://github.com/samie/vaadin-ga-tracker.git</url>
+		<connection>scm:git:git://github.com/samie/vaadin-ga-tracker.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/samie/vaadin-ga-tracker.git</developerConnection>
+		<tag>Google Analytics add-on for Vaadin</tag>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/samie/vaadin-ga-tracker/issues</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<!-- In case we need some addons or Vaadin snapshots
+	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+		<repository>
+			<id>vaadin-snapshots</id>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>vaadin-snapshots</id>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	-->
 
 	<modules>
 		<module>addon</module>
