@@ -88,13 +88,15 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
         setDomainName(domainName);
     }
     
-        /**
-     * Instantiate new Google Analytics tracker by id and domain.
+    /**
+     *   Instantiate new Google Analytics tracker by id and domain.
      *
      * @param trackerId The tracking id from Google Analytics. Something like
      * 'UA-658457-8'.
      * @param domainName The name of the domain to be tracked. Something like
      * 'vaadin.com'. Universal tracker is created by default.
+     * @param trackingPrefix Page id prefix to be used in all trackPageView calls
+     *
      */
     public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix) {
         this(trackerId);
@@ -102,7 +104,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
         setTrackingPrefix(trackingPrefix);
     }
 
-	    /**
+    /**
 	  * Instantiate new Google Analytics tracker by id and domain.
 	  *
 	  * @param trackerId The tracking id from Google Analytics. Something like
@@ -235,9 +237,9 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
 	}
     
     /**
-     * Gets the User-ID that was previously set.
+     * Gets the User ID that was previously set.
      * 
-     * @return
+     * @return User ID or null if not set.
      */
     public String getUserId() {
     	return getState().userId;
@@ -258,6 +260,12 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     /**
      * Track an event. See the Google Analytics documentation for more information.
      * Event tracking is only available if using the universal tracker.
+     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
+     *
+     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
+     * @param eventAction The type of interaction (e.g. 'play')
+     * @param eventLabel Useful for categorizing events (e.g. 'Fall Campaign'). Optional.
+     *
      *
      * @throws UnsupportedOperationException
 	 *             when attempting to call this method and not using universal
