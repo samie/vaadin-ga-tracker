@@ -5,7 +5,13 @@
 	<artifactId>googleanalyticstracker-addon</artifactId>
 	<packaging>pom</packaging>
 	<version>2.1.1-SNAPSHOT</version>
-	<name>GoogleAnalyticsTracker Add-on Project</name>
+	<name>GoogleAnalyticsTracker Project</name>
+
+
+	<properties>
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
+
 
 	<organization>
 		<name>Sami Ekblad</name>
@@ -13,7 +19,7 @@
 	</organization>
 
 	<scm>
-		<url>git://github.com/samie/vaadin-ga-tracker.git</url>
+		<url>https://github.com/samie/vaadin-ga-tracker/</url>
 		<connection>scm:git:git://github.com/samie/vaadin-ga-tracker.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/samie/vaadin-ga-tracker.git</developerConnection>
 		<tag>Google Analytics add-on for Vaadin</tag>
@@ -71,9 +77,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>2.8.2</version>
-					<configuration>
-						<skip>true</skip>
-					</configuration>
 				</plugin>
 
 				<plugin>
@@ -85,7 +88,6 @@
 						<target>1.6</target>
 					</configuration>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 
