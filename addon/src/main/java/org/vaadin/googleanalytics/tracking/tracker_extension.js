@@ -71,12 +71,13 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         }
     };
     
-    this.trackEvent = function (eventCategory, eventAction, eventLabel) {
+    this.trackEvent = function (eventCategory, eventAction, eventLabel, eventValue) {
         window._gaut('send', {
                         hitType: 'event',
                         eventCategory: eventCategory,
                         eventAction: eventAction,
-                        eventLabel: eventLabel
+                        eventLabel: eventLabel,
+                        eventValue: eventValue
                     })
     };
     

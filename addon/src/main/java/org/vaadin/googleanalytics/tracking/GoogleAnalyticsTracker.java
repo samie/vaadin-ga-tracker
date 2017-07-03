@@ -264,17 +264,58 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      *
      * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
      * @param eventAction The type of interaction (e.g. 'play')
+     *
+     *
+     * @throws UnsupportedOperationException
+     *             when attempting to call this method and not using universal
+     *             tracking mode.
+     */
+    public void trackEvent(String eventCategory, String eventAction) {
+        if (!getState().universalTracking)
+            throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
+        callFunction("trackEvent", eventCategory, eventAction);
+    }
+
+    /**
+     * Track an event. See the Google Analytics documentation for more information.
+     * Event tracking is only available if using the universal tracker.
+     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
+     *
+     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
+     * @param eventAction The type of interaction (e.g. 'play')
      * @param eventLabel Useful for categorizing events (e.g. 'Fall Campaign'). Optional.
+     *
+     *
+     * @throws UnsupportedOperationException
+     *             when attempting to call this method and not using universal
+     *             tracking mode.
+     */
+    public void trackEvent(String eventCategory, String eventAction, String eventLabel) {
+        if (!getState().universalTracking)
+            throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
+        callFunction("trackEvent", eventCategory, eventAction, eventLabel);
+    }
+
+
+    /**
+     * Track an event. See the Google Analytics documentation for more information.
+     * Event tracking is only available if using the universal tracker.
+     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
+     *
+     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
+     * @param eventAction The type of interaction (e.g. 'play')
+     * @param eventLabel Useful for categorizing events (e.g. 'Fall Campaign'). Optional.
+     * @param eventValue A numeric value associated with the event (e.g. 42). Optional.
      *
      *
      * @throws UnsupportedOperationException
 	 *             when attempting to call this method and not using universal
 	 *             tracking mode.
      */
-    public void trackEvent(String eventCategory, String eventAction, String eventLabel) {
+    public void trackEvent(String eventCategory, String eventAction, String eventLabel, int eventValue) {
         if (!getState().universalTracking)
 			throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
-        callFunction("trackEvent", eventCategory, eventAction, eventLabel);
+        callFunction("trackEvent", eventCategory, eventAction, eventLabel, eventValue);
     }
 
     /**
