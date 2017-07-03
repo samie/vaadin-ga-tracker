@@ -48,7 +48,13 @@ public class GoogleAnalyticsTrackerDemo extends UI {
         // tracker.trackPageview(pageId) separately when tracking is needed.
         getNavigator().addViewChangeListener(tracker);
 
-        // Track
-        tracker.trackEvent("someCategory","someAction", "someLabel");
+        // Examples how to track page views. Note that the "trackingPrefix" is added to these.
+        tracker.trackPageview("mydemo/init");
+        tracker.trackPageview("edit/customer");
+
+        // Examples how to track events
+        tracker.trackEvent("GoogleAnalyticsTrackerDemo","init");
+        tracker.trackEvent("GoogleAnalyticsTrackerDemo","start", "Demo Campaign");
+        tracker.trackEvent("GoogleAnalyticsTrackerDemo","run", "Demo Campaign",3);
     }
 }
