@@ -95,7 +95,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * 'UA-658457-8'.
      * @param domainName The name of the domain to be tracked. Something like
      * 'vaadin.com'. Universal tracker is created by default.
-     * @param trackingPrefix Page id prefix to be used in all trackPageView calls
+     * @param trackingPrefix Page id prefix to be used in all trackPageView calls, like "myapp/".
      *
      */
     public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix) {
@@ -105,13 +105,14 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     }
 
     /**
-	  * Instantiate new Google Analytics tracker by id and domain.
-	  *
-	  * @param trackerId The tracking id from Google Analytics. Something like
-	  * 'UA-658457-8'.
-	  * @param domainName The name of the domain to be tracked. Something like
-	  * 'vaadin.com'. Universal tracker is created by default.
-	  * @param userId a unique, persistent, and non-personally identifiable string ID.
+     * Instantiate new Google Analytics tracker by id and domain.
+     *
+     * @param trackerId The tracking id from Google Analytics. Like
+     * 'UA-658457-8'.
+     * @param domainName The name of the domain to be tracked. Like
+     * 'vaadin.com'. Universal tracker is created by default.
+     * @param userId a unique, persistent, and non-personally identifiable string ID.
+     * @param trackingPrefix Page id prefix to be used in all trackPageView calls, like "myapp/".
 	  */
 	 public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix, String userId) {
 	     this(trackerId);
