@@ -19,63 +19,9 @@
         <Implementation-Title>${project.name}</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
         <Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
-        <Vaadin-Addon>${artifactId}-${project.version}.jar</Vaadin-Addon>
+        <Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
     </properties>
 
-    <organization>
-        <name>Sami Ekblad</name>
-        <url>https://github.com/samie/vaadin-ga-tracker</url>
-    </organization>
-    
-    <scm>
-        <url>git://github.com/samie/vaadin-ga-tracker.git</url>
-        <connection>scm:git:git://github.com/samie/vaadin-ga-tracker.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/samie/vaadin-ga-tracker.git</developerConnection>
-        <tag>Google Analytics add-on for Vaadin</tag>
-    </scm>
-
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/samie/vaadin-ga-tracker/issues</url>
-    </issueManagement>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <repositories>
-        <repository>
-            <id>vaadin-addons</id>
-            <url>http://maven.vaadin.com/vaadin-addons</url>
-        </repository>
-        <repository>
-            <id>vaadin-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>vaadin-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -178,6 +124,16 @@
                         <phase>install</phase>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- No deployment -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
 
             <!-- Testing -->
