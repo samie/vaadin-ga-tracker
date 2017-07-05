@@ -4,7 +4,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>googleanalyticstracker-addon</artifactId>
 	<packaging>pom</packaging>
-	<version>2.1.2-SNAPSHOT</version>
+	<version>2.2.0</version>
 	<name>GoogleAnalyticsTracker Project</name>
 
 
@@ -22,7 +22,7 @@
 		<url>https://github.com/samie/vaadin-ga-tracker/</url>
 		<connection>scm:git:git://github.com/samie/vaadin-ga-tracker.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/samie/vaadin-ga-tracker.git</developerConnection>
-		<tag>Google Analytics add-on for Vaadin</tag>
+		<tag>v2.2.0</tag>
 	</scm>
 
 	<issueManagement>
