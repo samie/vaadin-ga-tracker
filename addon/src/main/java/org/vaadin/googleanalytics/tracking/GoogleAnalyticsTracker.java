@@ -248,14 +248,54 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     
 
     /**
-     * Track a single page view. This effectively invokes the 'trackPageview' in
-     * ga.js file.
+     * Tracks a single page view. This effectively invokes the 'trackPageview' in ga.js file.
      *
-     * @param pageId The page id. Use a scheme like '/topic/page' or
-     * '/view/action'.
+     * @param pageId The page id. Use a scheme like '/topic/page' or '/view/action'.
      */
     public void trackPageview(String pageId) {
-        callFunction("trackPageView", trackingPrefix != null && trackingPrefix.length() > 0 ? trackingPrefix + pageId : pageId);
+        callFunction("trackPageView", getPageId(pageId));
+    }
+
+    /**
+     * Tracks a single page view adding a dimension value (for the given dimension index).
+     * This effectively invokes the 'trackPageViewWithDimension' in ga.js file.
+     * <p>
+     * <b>Does not support legacy Google Analytics API</b> (i.e. in case {@code isUniversalTracking} is {@code false}).
+     *
+     * @param pageId The page id. Use a scheme like '/topic/page' or '/view/action'.
+     * @param dimensionKeyIndex the dimension index of the configured dimension
+     * @param dimensionValue the dimension value
+     *
+     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/custom-dims-mets">GA dimensions</a>
+     *
+     * @throws UnsupportedOperationException if legacy Google Analytics API is used
+     * @throws IllegalArgumentException if {@code pageId} or {@code dimensionValue} is {@code null} or empty
+     * @throws IllegalArgumentException if {@code pageId} or {@code dimensionValue} is {@code null} or empty
+     */
+    public void trackPageViewWithDimension(final String pageId, final int dimensionKeyIndex, final String dimensionValue) {
+        checkTrackPageViewWithDimensionArguments(pageId, dimensionKeyIndex, dimensionValue);
+
+        if(!isUniversalTracking()) {
+            throw new UnsupportedOperationException("No legacy API support for this method");
+        }
+
+        callFunction("trackPageViewWithDimension", getPageId(pageId), dimensionKeyIndex, dimensionValue);
+    }
+
+    private static void checkTrackPageViewWithDimensionArguments(final String pageId, final int dimensionKeyIndex, final String dimensionValue) {
+        if(pageId == null || pageId.isEmpty()) {
+            throw new IllegalArgumentException("Page id is required");
+        }
+        if(dimensionKeyIndex < 0) {
+            throw new IllegalArgumentException("Dimension key index must be >= 0");
+        }
+        if(dimensionValue == null || dimensionValue.isEmpty()) {
+            throw new IllegalArgumentException("Dimension value is required");
+        }
+    }
+
+    private String getPageId(final String pageId) {
+        return trackingPrefix != null && trackingPrefix.length() > 0 ? trackingPrefix + pageId : pageId;
     }
 
     /**
