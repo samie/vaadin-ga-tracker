@@ -72,8 +72,20 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
     };
 
     this.trackPageViewWithDimension = function(pageId, dimensionKeyIndex, dimensionValue) {
-        // TODO
+        if (self.getState().universalTracking) {
+            self.universalTrackWithDimension(pageId, dimensionKeyIndex, dimensionValue);
+        }
     }
+
+    this.universalTrackWithDimension = function(pageId, dimensionKeyIndex, dimensionValue) {
+
+        var args = {
+            'page': pageId
+        };
+        args['dimension' + dimensionKeyIndex] = dimensionValue;
+
+        window._gaut('send', 'pageview', args);
+    };
     
     this.trackEvent = function (eventCategory, eventAction, eventLabel, eventValue) {
         window._gaut('send', {
@@ -101,16 +113,6 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         } else {
             window._gaut('send', 'pageview');
         }
-    };
-
-    this.universalTrackWithDimension = function(pageId, dimensionKeyIndex, dimensionValue) {
-
-        var args = {
-            'page': pageId
-        };
-        args['dimension' + dimensionKeyIndex] = dimensionValue;
-
-        window._gaut('send', 'pageview', args);
     };
 
     this.onStateChange = function() {
