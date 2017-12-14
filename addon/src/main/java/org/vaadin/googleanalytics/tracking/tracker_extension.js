@@ -71,18 +71,23 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         }
     };
 
-    this.trackPageViewWithDimension = function(pageId, dimensionKeyIndex, dimensionValue) {
+    this.trackPageViewWithDimensions = function(pageId, dimensions) {
         if (self.getState().universalTracking) {
-            self.universalTrackWithDimension(pageId, dimensionKeyIndex, dimensionValue);
+            self.universalTrackWithDimensions(pageId, dimensions);
         }
     }
 
-    this.universalTrackWithDimension = function(pageId, dimensionKeyIndex, dimensionValue) {
+    this.universalTrackWithDimensions = function(pageId, dimensions) {
 
         var args = {
             'page': pageId
         };
-        args['dimension' + dimensionKeyIndex] = dimensionValue;
+
+        for(i = 0 ; i < dimensions.length ; i ++) {
+            var dimension = dimensions[i];
+            var key = 'dimension' + dimension["dimensionKeyIndex"];
+            args[key] = dimension["dimensionValue"];
+        }
 
         window._gaut('send', 'pageview', args);
     };
