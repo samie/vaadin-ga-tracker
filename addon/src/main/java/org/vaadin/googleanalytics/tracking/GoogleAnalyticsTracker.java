@@ -4,6 +4,13 @@ import com.vaadin.annotations.JavaScript;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.AbstractJavaScriptExtension;
 import com.vaadin.ui.UI;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
+
+import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Component for triggering Google Analytics page views. Usage:
@@ -263,8 +270,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * <b>Does not support legacy Google Analytics API</b> (i.e. in case {@code isUniversalTracking} is {@code false}).
      *
      * @param pageId The page id. Use a scheme like '/topic/page' or '/view/action'.
-     * @param dimensionKeyIndex the dimension index of the configured dimension
-     * @param dimensionValue the dimension value
+     * @param dimensions the {@link Dimension}s
      *
      * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/custom-dims-mets">GA dimensions</a>
      *
@@ -272,26 +278,53 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * @throws IllegalArgumentException if {@code pageId} or {@code dimensionValue} is {@code null} or empty
      * @throws IllegalArgumentException if {@code pageId} or {@code dimensionValue} is {@code null} or empty
      */
-    public void trackPageViewWithDimension(final String pageId, final int dimensionKeyIndex, final String dimensionValue) {
-        checkTrackPageViewWithDimensionArguments(pageId, dimensionKeyIndex, dimensionValue);
+    public void trackPageViewWithDimensions(final String pageId, final List<Dimension> dimensions) {
+        checkTrackPageViewWithDimensionArguments(pageId, dimensions);
 
         if(!isUniversalTracking()) {
             throw new UnsupportedOperationException("No legacy API support for this method");
         }
-
-        callFunction("trackPageViewWithDimension", getPageId(pageId), dimensionKeyIndex, dimensionValue);
+        callFunction("trackPageViewWithDimensions", getPageId(pageId), toJson(dimensions));
     }
 
-    private static void checkTrackPageViewWithDimensionArguments(final String pageId, final int dimensionKeyIndex, final String dimensionValue) {
+    private JsonValue toJson(final List<Dimension> dimensions) {
+
+        final JsonArray array = Json.instance().createArray();
+
+        final LongAdder index = new LongAdder();
+        dimensions.forEach(d -> {
+            final JsonObject jsonDimension = Json.instance().createObject();
+            jsonDimension.put("dimensionKeyIndex", d.dimensionKeyIndex);
+            jsonDimension.put("dimensionValue", d.dimensionValue);
+            array.set(index.intValue(), jsonDimension);
+            index.increment();
+        });
+
+        return array;
+    }
+
+    public static class Dimension {
+        private final int dimensionKeyIndex;
+        private final String dimensionValue;
+
+        public Dimension(final int dimensionKeyIndex, final String dimensionValue) {
+            this.dimensionKeyIndex = dimensionKeyIndex;
+            this.dimensionValue = dimensionValue;
+        }
+    }
+
+    private static void checkTrackPageViewWithDimensionArguments(final String pageId, final List<Dimension> dimensions) {
         if(pageId == null || pageId.isEmpty()) {
             throw new IllegalArgumentException("Page id is required");
         }
-        if(dimensionKeyIndex < 0) {
-            throw new IllegalArgumentException("Dimension key index must be >= 0");
-        }
-        if(dimensionValue == null || dimensionValue.isEmpty()) {
-            throw new IllegalArgumentException("Dimension value is required");
-        }
+        dimensions.forEach(d -> {
+            if(d.dimensionKeyIndex < 0) {
+                throw new IllegalArgumentException("Dimension key index must be >= 0");
+            }
+            if(d.dimensionValue == null || d.dimensionValue.isEmpty()) {
+                throw new IllegalArgumentException("Dimension value is required");
+            }
+        });
     }
 
     private String getPageId(final String pageId) {
