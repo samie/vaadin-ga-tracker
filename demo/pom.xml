@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.vaadin.addons</groupId>
 		<artifactId>googleanalyticstracker-addon</artifactId>
-		<version>3.0.0</version>
+		<version>3.0-SNAPSHOT</version>
 	</parent>
 
 	<properties>
