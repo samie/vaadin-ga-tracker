@@ -246,7 +246,28 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     	return getState().userId;
     }
     
-
+    /**
+     * Enables/disables the anonymizeIp feature.
+     * 
+     * https://developers.google.com/analytics/devguides/collection/analyticsjs/ip-anonymization
+     * 
+     * @param anonymizeIp is IP anonymization enabled (default is 'false')
+     */
+    public void setAnonymizeIp(boolean anonymizeIp) {
+        getState().anonymizeIp = anonymizeIp;
+    }
+    
+    /**
+     * This method returns if IP anonymization is enabled (default is 'false')
+     *
+     * https://developers.google.com/analytics/devguides/collection/analyticsjs/ip-anonymization
+     *
+     * @return true if IP anonymization is enabled
+     */
+    public boolean isAnonymizeIp() {
+        return getState().anonymizeIp;
+    }
+    
     /**
      * Track a single page view. This effectively invokes the 'trackPageview' in
      * ga.js file.
