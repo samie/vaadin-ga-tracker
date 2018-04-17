@@ -60,6 +60,10 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         var userId = state.userId;
 
         window._gaut('create', trackerId, {'cookieDomain': domainName, 'allowAnchor': allowAnchor, 'userId': userId});
+        
+        if (state.anonymizeIp) {
+            window._gaut('set', 'anonymizeIp', true);
+        }
     };
 
 
