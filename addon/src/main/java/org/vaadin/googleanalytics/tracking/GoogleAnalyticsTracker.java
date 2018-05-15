@@ -208,6 +208,31 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     public boolean isAllowAnchor() {
         return getState().allowAnchor;
     }
+    
+    /**
+     * Sets the linker functionality flag as part of enabling cross-domain user 
+     * tracking. By default, this method is set to false and linking is disabled.
+     *
+     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
+     *
+     * @param allowLinker If this parameter is set to true, then linker is 
+     * enabled. Otherwise, domain linking is disabled (default).
+     *
+     */
+    public void setAllowLinker(boolean allowLinker) {
+        getState().allowLinker = allowLinker;
+    }
+
+    /**
+     * Verify allowLinker flag state.
+     *
+     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
+     *
+     * @return true if linker are allowed in the URIs. False by default.
+     */
+    public boolean isAllowLinker() {
+        return getState().allowLinker;
+    }
 
     /**
      * Sets the Google Analytics tracking id.

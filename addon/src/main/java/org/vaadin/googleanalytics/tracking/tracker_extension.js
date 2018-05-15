@@ -39,7 +39,7 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         var trackerId = state.trackerId;
         var domainName = state.domainName;
         var allowAnchor = state.allowAnchor;
-
+        var allowLinker = state.allowLinker;
 
         window._gaq.push(['_setAccount', trackerId]);
 
@@ -47,6 +47,7 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
             window._gaq.push(['_setDomainName', domainName]);
         }
         window._gaq.push(['_setAllowAnchor', allowAnchor]);
+        window._gaq.push(['_setAllowLinker', allowLinker]);
     };
 
 
@@ -57,9 +58,10 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
         var trackerId = state.trackerId;
         var domainName = state.domainName;
         var allowAnchor = state.allowAnchor;
+        var allowLinker = state.allowLinker;
         var userId = state.userId;
 
-        window._gaut('create', trackerId, {'cookieDomain': domainName, 'allowAnchor': allowAnchor, 'userId': userId});
+        window._gaut('create', trackerId, {'cookieDomain': domainName, 'allowAnchor': allowAnchor, 'allowLinker': allowLinker, 'userId': userId});
     };
 
 
