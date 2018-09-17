@@ -1,10 +1,10 @@
+[![Published on Vaadin  Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
+[![Stars on Vaadin Directory](https://img.shields.io/vaadin-directory/star/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
+[![Latest version](https://img.shields.io/vaadin-directory/v/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
+
 # Google analytics tracking integration for Vaadin 8
 
-Track your Vaadin application usage using Google Analytics. [Available in Vaadin Directory](https://vaadin.com/directory/component/googleanalyticstracker)
-
-[![Vaadin Directory](https://img.shields.io/vaadin-directory/v/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
-[![Vaadin Directory](https://img.shields.io/vaadin-directory/star/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
-
+Track your Vaadin application usage using Google Analytics.
 
 ## Download release
 
