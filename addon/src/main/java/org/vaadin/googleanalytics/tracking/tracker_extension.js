@@ -72,6 +72,27 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
             self.legacyTrack(pageId);
         }
     };
+
+    this.trackPageViewWithDimensions = function(pageId, dimensions) {
+        if (self.getState().universalTracking) {
+            self.universalTrackWithDimensions(pageId, dimensions);
+        }
+    }
+
+    this.universalTrackWithDimensions = function(pageId, dimensions) {
+
+        var args = {
+            'page': pageId
+        };
+
+        for(i = 0 ; i < dimensions.length ; i ++) {
+            var dimension = dimensions[i];
+            var key = 'dimension' + dimension["dimensionKeyIndex"];
+            args[key] = dimension["dimensionValue"];
+        }
+
+        window._gaut('send', 'pageview', args);
+    };
     
     this.trackEvent = function (eventCategory, eventAction, eventLabel, eventValue) {
         window._gaut('send', {
