@@ -5,15 +5,14 @@
     <artifactId>googleanalyticstracker</artifactId>
     <packaging>jar</packaging>
     <name>GoogleAnalyticsTracker</name>
-    <parent>
-        <groupId>org.vaadin.addons</groupId>
-        <artifactId>googleanalyticstracker-addon</artifactId>
-        <version>3.0-SNAPSHOT</version>
-    </parent>
-
+    <version>3.0-SNAPSHOT</version>
+    <!-- No parent specified to be able to make standalone component for Directory -->
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vaadin.version>8.0.0</vaadin.version>
+        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
         <!-- ZIP Manifest fields -->
         <Implementation-Version>${project.version}</Implementation-Version>
