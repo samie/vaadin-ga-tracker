@@ -1,365 +1,334 @@
 package org.vaadin.googleanalytics.tracking;
 
-import com.vaadin.annotations.JavaScript;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.AbstractJavaScriptExtension;
-import com.vaadin.ui.UI;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import org.vaadin.googleanalytics.tracking.EnableGoogleAnalytics.LogLevel;
+import org.vaadin.googleanalytics.tracking.EnableGoogleAnalytics.SendMode;
+
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.internal.JsonCodec;
+import com.vaadin.flow.internal.JsonUtils;
+import com.vaadin.flow.shared.ui.LoadMode;
+
+import elemental.json.JsonObject;
 
 /**
- * Component for triggering Google Analytics page views. Usage:
- *
- * <pre>
- * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker("UA-658457-8", "vaadin.com");
- * tracker.extend(myUI);
- *   ....
- * tracker.trackPageview("/samplecode/googleanalytics");
- * </pre>
- *
- * To connect it to a Navigator to automatically track page views, you can do
- *
- * <pre>
- * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(&quot;UA-658457-8&quot;,
- *         &quot;vaadin.com&quot;);
- * tracker.extend(myUI);
- * myUI.getNavigator().addViewChangeListener(tracker);
- * </pre>
- *
- * @author Sami Ekblad / Marc Englund / Artur Signell
+ * Sends commands to Google Analytics in the browser. An instance of the tracker
+ * can be retrieved from a given UI instance ({@link #get(UI)}) or for the
+ * current UI instance ({@link #getCurrent()}).
+ * <p>
+ * Page view commands will automatically be sent for any Flow navigation if the
+ * tracker can be configured.
+ * <p>
+ * The first time any command is sent, the tracker will configure itself based
+ * on the top-level router layout in the corresponding UI. The layout should be
+ * annotated with @{@link EnableGoogleAnalytics} or implement
+ * {@link TrackerConfigurator} for the configuration to succeed.
  */
-@JavaScript("tracker_extension.js")
-public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
-        implements ViewChangeListener {
+public class GoogleAnalyticsTracker {
+    private final UI ui;
 
-    private static final long serialVersionUID = 1L;
+    private boolean inited = false;
 
-    private String trackingPrefix = "";
+    private String pageViewPrefix = "";
 
     /**
-     * Get the value of tracking prefix used in all page track calls.
+     * List of actions to send before the next Flow response is created.
+     * Initialization can only happen after routing has completed since the
+     * top-level layout can only be identified at that point. This queue is only
+     * needed for actions that are issues before initialization has happened,
+     * but it is still used in all cases to keep the internal logic simpler.
+     */
+    private ArrayList<Serializable[]> pendingActions = new ArrayList<>();
+
+    private GoogleAnalyticsTracker(UI ui) {
+        this.ui = ui;
+    }
+
+    /**
+     * Gets or creates a tracker for the current UI.
      * 
-     * Tracking prefix in added before all page ids passed to trackPageview(id) methods.
-     * @see #trackPageview(java.lang.String) 
-     *
+     * @see UI#getCurrent()
      * 
-     * @return the value of trackingPrefix
+     * @return the tracker for the current UI, or <code>null</code> if there is
+     *         no current UI
      */
-    public String getTrackingPrefix() {
-        return trackingPrefix;
+    public static GoogleAnalyticsTracker getCurrent() {
+        UI ui = UI.getCurrent();
+        if (ui == null) {
+            return null;
+        }
+        return get(ui);
     }
 
     /**
-     * Set the value of tracking prefix used in all trackPageview calls.
+     * Gets or creates a tracker for the given UI.
      * 
-     * Tracking prefix in added before all page ids passed to trackPageview(id) methods.
-     * @see #trackPageview(java.lang.String) 
-     * @param trackingPrefix Prefix added to all trackPageview calls.
+     * @param ui
+     *            the UI for which to get at tracker, not <code>null</code>
+     * @return the tracker for the given ui
      */
-    public void setTrackingPrefix(String trackingPrefix) {
-        this.trackingPrefix = trackingPrefix;
+    public static GoogleAnalyticsTracker get(UI ui) {
+        GoogleAnalyticsTracker tracker = ComponentUtil.getData(ui, GoogleAnalyticsTracker.class);
+        if (tracker == null) {
+            tracker = new GoogleAnalyticsTracker(ui);
+            ComponentUtil.setData(ui, GoogleAnalyticsTracker.class, tracker);
+        }
+        return tracker;
     }
-    
-    /**
-     * Instantiate new Google Analytics tracker without id. Universal tracker is
-     * created by default.
-     */
-    public GoogleAnalyticsTracker() {
+
+    private void init() {
+        TrackerConfiguration config = createConfig(ui);
+
+        if (config == null) {
+            throw new IllegalStateException(
+                    "There are pending actions for a tracker that isn't initialized and cannot be initialized automatically. Ensure there is a @"
+                            + EnableGoogleAnalytics.class.getSimpleName()
+                            + " on the application's main layout or that it implements "
+                            + TrackerConfigurator.class.getSimpleName() + ".");
+        }
+
+        String trackingId = config.getTrackingId();
+        if (trackingId == null || trackingId.isEmpty()) {
+            throw new IllegalStateException("No tracking id has been defined.");
+        }
+
+        pageViewPrefix = config.getPageViewPrefix();
+
+        ui.getPage()
+                .executeJavaScript("window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;");
+
+        Map<String, Serializable> gaDebug = config.getGaDebug();
+        if (!gaDebug.isEmpty()) {
+            ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
+        }
+
+        sendAction(createAction("create", config.getCreateFields(), trackingId, config.getCookieDomain()));
+
+        Map<String, Serializable> initialValues = config.getInitialValues();
+        if (!initialValues.isEmpty()) {
+            sendAction(createAction("set", initialValues));
+        }
+
+        ui.getPage().addJavaScript(config.getScriptUrl(), LoadMode.LAZY);
+
+        inited = true;
+    }
+
+    private static TrackerConfiguration createConfig(UI ui) {
+        TrackerConfiguration config = null;
+
+        HasElement routeLayout = findRouteLayout(ui);
+        boolean productionMode = ui.getSession().getConfiguration().isProductionMode();
+
+        EnableGoogleAnalytics annotation = routeLayout.getClass().getAnnotation(EnableGoogleAnalytics.class);
+
+        if (annotation != null) {
+            config = TrackerConfiguration.fromAnnotation(annotation, productionMode);
+        }
+
+        if (routeLayout instanceof TrackerConfigurator) {
+            if (config == null) {
+                // Use same defaults as in the annotation
+                LogLevel logLevel = productionMode ? LogLevel.NONE : LogLevel.DEBUG;
+                boolean sendHits = SendMode.PRODUCTION.shouldSend(productionMode);
+
+                TrackerConfiguration.create(logLevel, sendHits);
+            }
+
+            ((TrackerConfigurator) routeLayout).configureTracker(config);
+        }
+
+        return config;
+    }
+
+    private static HasElement findRouteLayout(UI ui) {
+        List<HasElement> routeChain = ui.getInternals().getActiveRouterTargetsChain();
+        if (routeChain.isEmpty()) {
+            throw new IllegalStateException("Cannot initialize when no router target is active");
+        }
+        return routeChain.get(routeChain.size() - 1);
+    }
+
+    private void sendAction(Serializable[] action) {
+        /*
+         * Append prefix for page views. This is done in the send phase so that
+         * the prefix is considered also if the page view was created before the
+         * prefix was read from the config.
+         */
+        if (!pageViewPrefix.isEmpty()) {
+            // ["set", "page", location]
+            if (action.length == 3 && "set".equals(action[0]) && "page".equals(action[1])) {
+                action[2] = pageViewPrefix + action[2];
+            }
+        }
+
+        ui.getPage().executeJavaScript("ga.apply(null, arguments)", action);
+    }
+
+    private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,
+            Serializable... fields) {
+        if (fields == null) {
+            fields = new Serializable[] { null };
+        }
+
+        // [command, fields...]
+        Stream<Serializable> argsStream = Stream.concat(Stream.of(command), Stream.of(fields));
+        if (fieldsObject != null && !fieldsObject.isEmpty()) {
+            // [command, fields..., fieldsObject]
+            argsStream = Stream.concat(argsStream, Stream.of(toJsonObject(fieldsObject)));
+        }
+
+        return argsStream.toArray(Serializable[]::new);
+    }
+
+    private static JsonObject toJsonObject(Map<String, ? extends Serializable> map) {
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+
+        return JsonUtils.createObject(map, JsonCodec::encodeWithoutTypeInfo);
     }
 
     /**
-     * Instantiate new Google Analytics tracker by id.
-     *
-     * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'. Universal tracker is created by default.
-     */
-    public GoogleAnalyticsTracker(String trackerId) {
-        setTrackerId(trackerId);
-    }
-
-    /**
-     * Instantiate new Google Analytics tracker by id and domain.
-     *
-     * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'.
-     * @param domainName The name of the domain to be tracked. Something like
-     * 'vaadin.com'. Universal tracker is created by default.
-     */
-    public GoogleAnalyticsTracker(String trackerId, String domainName) {
-        this(trackerId);
-        setDomainName(domainName);
-    }
-    
-    /**
-     *   Instantiate new Google Analytics tracker by id and domain.
-     *
-     * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'.
-     * @param domainName The name of the domain to be tracked. Something like
-     * 'vaadin.com'. Universal tracker is created by default.
-     * @param trackingPrefix Page id prefix to be used in all trackPageView calls, like "myapp/".
-     *
-     */
-    public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix) {
-        this(trackerId);
-        setDomainName(domainName);
-        setTrackingPrefix(trackingPrefix);
-    }
-
-    /**
-     * Instantiate new Google Analytics tracker by id and domain.
-     *
-     * @param trackerId The tracking id from Google Analytics. Like
-     * 'UA-658457-8'.
-     * @param domainName The name of the domain to be tracked. Like
-     * 'vaadin.com'. Universal tracker is created by default.
-     * @param userId a unique, persistent, and non-personally identifiable string ID.
-     * @param trackingPrefix Page id prefix to be used in all trackPageView calls, like "myapp/".
-	  */
-	 public GoogleAnalyticsTracker(String trackerId, String domainName, String trackingPrefix, String userId) {
-	     this(trackerId);
-	     setDomainName(domainName);
-	     setTrackingPrefix(trackingPrefix);
-	     setUserId(userId);
-	 }
-
-    /**
-     * Get the domain name associated with this tracker.
-     *
-     * @return The domain name
-     */
-    public String getDomainName() {
-        return getState().domainName;
-    }
-
-    /**
-     * Sets the domain name you are tracking
-     *
-     * @param domainName The domain name
-     */
-    public void setDomainName(String domainName) {
-        getState().domainName = domainName;
-
-    }
-
-    @Override
-    protected GoogleAnalyticsTrackerState getState() {
-        return (GoogleAnalyticsTrackerState) super.getState();
-    }
-
-    /**
-     * Gets the Google Analytics tracking id.
-     *
-     * @return Tracking id like 'UA-658457-8'.
-     */
-    public String getTrackerId() {
-        return getState().trackerId;
-    }
-
-    /**
-     * Set the "Universal" tracking mode.
-     *
-     * Google Analytics update in 2014 introduced new Universal tracking API,
-     * but the old GA tracking is still available.
-     *
-     * Since 2.1 this is the default.
-     *
-     * @param universalTracking true, if Universal tracking API should be used,
-     * false, if old GA tracking API is used.
-     */
-    public void setUniversalTracking(boolean universalTracking) {
-        getState().universalTracking = universalTracking;
-    }
-
-    /**
-     * Set the "Universal" tracking mode.
-     *
-     * Google Analytics update in 2014 introduced new Universal tracking API,
-     * but the old GA tracking is still available.
-     *
-     * Since 2.1 this is the default.
-     *
-     * @return true, if Universal tracking API should be used, false, if old GA
-     * tracking API is used.
-     */
-    public boolean isUniversalTracking() {
-        return getState().universalTracking;
-    }
-
-    /**
-     * This method sets the # sign as the query string delimiter in campaign
-     * tracking.
-     *
-     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
-     *
-     * @param allowAnchor Are anchors allowed in URIs. This is the default.
-     *
-     */
-    public void setAllowAnchor(boolean allowAnchor) {
-        getState().allowAnchor = allowAnchor;
-    }
-
-    /**
-     * This method sets the # sign as the query string delimiter in campaign
-     * tracking.
-     *
-     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
-     *
-     * @return true if anchors are allowed in the URIs
-     */
-    public boolean isAllowAnchor() {
-        return getState().allowAnchor;
-    }
-    
-    /**
-     * Sets the linker functionality flag as part of enabling cross-domain user 
-     * tracking. By default, this method is set to false and linking is disabled.
-     *
-     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
-     *
-     * @param allowLinker If this parameter is set to true, then linker is 
-     * enabled. Otherwise, domain linking is disabled (default).
-     *
-     */
-    public void setAllowLinker(boolean allowLinker) {
-        getState().allowLinker = allowLinker;
-    }
-
-    /**
-     * Verify allowLinker flag state.
-     *
-     * https://developers.google.com/analytics/devguides/collection/gajs/methods/
-     *
-     * @return true if linker are allowed in the URIs. False by default.
-     */
-    public boolean isAllowLinker() {
-        return getState().allowLinker;
-    }
-
-    /**
-     * Sets the Google Analytics tracking id.
-     *
-     * @param trackerId The tracking id like 'UA-586743-2'
-     */
-    public void setTrackerId(String trackerId) {
-        getState().trackerId = trackerId;
-    }
-    
-	/**
-	 * Sets the UserId to send to Google Analytics. The User-ID feature must be
-	 * enabled within the Google Analytics admin for User-ID tracking to work.
-	 * See the Google Analytics documentation for more information. User-ID
-	 * tracking is only available if using the universal tracker.
-	 *
-	 * @param userId
-	 *            a unique, persistent, and non-personally identifiable string
-	 *            ID.
-	 * @throws UnsupportedOperationException
-	 *             when attempting to call this method and not using universal
-	 *             tracking mode.
-	 */
-	public void setUserId(String userId) throws UnsupportedOperationException {
-		if (!getState().universalTracking)
-			throw new UnsupportedOperationException("User-ID tracking only supported when using universal tracking mode.");
-		getState().userId = userId;
-	}
-    
-    /**
-     * Gets the User ID that was previously set.
+     * Sends a generic command to Google Analytics. This corresponds to a
+     * client-side call to the <code>ga</code> function except that fieldsObject
+     * is not the last parameter because of the way varargs work in Java.
      * 
-     * @return User ID or null if not set.
+     * @param command
+     *            the name of the command to send, not <code>null</code>
+     * @param fieldsObject
+     *            a map of additional fields, or <code>null</code> to to not
+     *            send any additional fields
+     * @param fields
+     *            a list of field values to send
      */
-    public String getUserId() {
-    	return getState().userId;
-    }
-    
+    public void ga(String command, Map<String, ? extends Serializable> fieldsObject, Serializable... fields) {
+        if (pendingActions.isEmpty()) {
+            ui.beforeClientResponse(ui, context -> {
+                if (!inited) {
+                    init();
+                }
 
-    /**
-     * Track a single page view. This effectively invokes the 'trackPageview' in
-     * ga.js file.
-     *
-     * @param pageId The page id. Use a scheme like '/topic/page' or
-     * '/view/action'.
-     */
-    public void trackPageview(String pageId) {
-        callFunction("trackPageView", trackingPrefix != null && trackingPrefix.length() > 0 ? trackingPrefix + pageId : pageId);
-    }
+                pendingActions.forEach(this::sendAction);
+                pendingActions.clear();
+            });
+        }
 
-    /**
-     * Track an event. See the Google Analytics documentation for more information.
-     * Event tracking is only available if using the universal tracker.
-     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
-     *
-     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
-     * @param eventAction The type of interaction (e.g. 'play')
-     *
-     *
-     * @throws UnsupportedOperationException
-     *             when attempting to call this method and not using universal
-     *             tracking mode.
-     */
-    public void trackEvent(String eventCategory, String eventAction) {
-        if (!getState().universalTracking)
-            throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
-        callFunction("trackEvent", eventCategory, eventAction);
+        pendingActions.add(createAction(command, fieldsObject, fields));
     }
 
     /**
-     * Track an event. See the Google Analytics documentation for more information.
-     * Event tracking is only available if using the universal tracker.
-     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
-     *
-     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
-     * @param eventAction The type of interaction (e.g. 'play')
-     * @param eventLabel Useful for categorizing events (e.g. 'Fall Campaign'). Optional.
-     *
-     *
-     * @throws UnsupportedOperationException
-     *             when attempting to call this method and not using universal
-     *             tracking mode.
+     * Sends a page view command to Google Analytics.
+     * 
+     * @param location
+     *            the location of the viewed page, not <code>null</code>
      */
-    public void trackEvent(String eventCategory, String eventAction, String eventLabel) {
-        if (!getState().universalTracking)
-            throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
-        callFunction("trackEvent", eventCategory, eventAction, eventLabel);
-    }
-
-
-    /**
-     * Track an event. See the Google Analytics documentation for more information.
-     * Event tracking is only available if using the universal tracker.
-     * @see <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Google Analytics documentation</a>
-     *
-     * @param eventCategory Typically the object that was interacted with (e.g. 'Video')
-     * @param eventAction The type of interaction (e.g. 'play')
-     * @param eventLabel Useful for categorizing events (e.g. 'Fall Campaign'). Optional.
-     * @param eventValue A numeric value associated with the event (e.g. 42). Optional.
-     *
-     *
-     * @throws UnsupportedOperationException
-	 *             when attempting to call this method and not using universal
-	 *             tracking mode.
-     */
-    public void trackEvent(String eventCategory, String eventAction, String eventLabel, int eventValue) {
-        if (!getState().universalTracking)
-			throw new UnsupportedOperationException("Event tracking only supported when using universal tracking mode.");
-        callFunction("trackEvent", eventCategory, eventAction, eventLabel, eventValue);
+    public void sendPageView(String location) {
+        sendPageView(location, null);
     }
 
     /**
-     * Attach this analytics component to a UI to enable tracking
-     *
-     * @param target The UI to track
+     * Sends a page view command with arbitrary additional fields to Google
+     * Analytics. See <a href=
+     * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
+     * reference documentation</a> for more information about supported
+     * additional fields.
+     * 
+     * @param location
+     *            the location of the viewed page, not <code>null</code>
+     * @param fieldsObject
+     *            map of additional fields to include in the <code>send</code>
+     *            command
      */
-    public void extend(UI target) {
-        super.extend(target);
+    public void sendPageView(String location, Map<String, Serializable> fieldsObject) {
+        ga("set", null, "page", location);
+        ga("send", fieldsObject, "pageview");
     }
 
-    @Override
-    public boolean beforeViewChange(ViewChangeEvent event) {
-        return true;
+    /**
+     * Sends an event command with the given category and action. See <a href=
+     * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
+     * reference documentation</a> for information about the semantics of the
+     * parameters.
+     * 
+     * @param category
+     *            the category name, not <code>null</code>
+     * @param action
+     *            the action name, not <code>null</code>
+     */
+    public void sendEvent(String category, String action) {
+        ga("send", null, "event", category, action);
     }
 
-    @Override
-    public void afterViewChange(ViewChangeEvent event) {
-        trackPageview(event.getViewName());
+    /**
+     * Sends an event command with the given category, action and label. See
+     * <a href=
+     * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
+     * reference documentation</a> for information about the semantics of the
+     * parameters.
+     * 
+     * @param category
+     *            the category name, not <code>null</code>
+     * @param action
+     *            the action name, not <code>null</code>
+     * @param label
+     *            the event label, not <code>null</code>
+     */
+    public void sendEvent(String category, String action, String label) {
+        ga("send", null, "event", category, action, label);
+    }
+
+    /**
+     * Sends an event command with the given category, action, label and value.
+     * See <a href=
+     * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
+     * reference documentation</a> for information about the semantics of the
+     * parameters.
+     * 
+     * @param category
+     *            the category name, not <code>null</code>
+     * @param action
+     *            the action name, not <code>null</code>
+     * @param label
+     *            the event label, not <code>null</code>
+     * @param value
+     *            the event value
+     */
+    public void sendEvent(String category, String action, String label, int value) {
+        ga("send", null, "event", category, action, label, Integer.valueOf(value));
+    }
+
+    /**
+     * Sends an event command with the given category, action and arbitrary
+     * additional fields. See <a href=
+     * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
+     * reference documentation</a> for information about the semantics of the
+     * parameters.
+     * 
+     * @param category
+     *            the category name, not <code>null</code>
+     * @param action
+     *            the action name, not <code>null</code>
+     * @param fieldsObject
+     */
+    public void sendEvent(String category, String action, Map<String, Serializable> fieldsObject) {
+        ga("send", fieldsObject, "event", category, action);
+    }
+
+    /**
+     * Checks whether this tracker has been initialized.
+     * 
+     * @return <code>true</code> if this tracker is initialized, otherwise
+     *         <code>false</code>
+     */
+    public boolean isInitialized() {
+        return inited;
     }
 }
