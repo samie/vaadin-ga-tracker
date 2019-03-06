@@ -12,3 +12,6 @@
 # IDE Files
 .idea
 *.iml
+.project
+.settings
+.classpath
