@@ -8,7 +8,7 @@ Try the add-on demo at <url of the online demo>
 
 ## Download release
 
-Official releases of this add-on are available at Vaadin Directory. For Maven instructions, download and reviews, go to http://vaadin.com/addon/vaadin-ga-tracker
+Official releases of this add-on are available at Vaadin Directory. For Maven instructions, download and reviews, go to https://vaadin.com/directory/component/googleanalyticstracker
 
 ## Building and running demo
 
