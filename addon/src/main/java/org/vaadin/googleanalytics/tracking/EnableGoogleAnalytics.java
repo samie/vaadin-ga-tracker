@@ -99,7 +99,7 @@ public @interface EnableGoogleAnalytics {
             }
         },
         /**
-         * Log all available inforamtion to the client-side JavaScript console.
+         * Log all available information to the client-side JavaScript console.
          */
         TRACE {
             @Override
