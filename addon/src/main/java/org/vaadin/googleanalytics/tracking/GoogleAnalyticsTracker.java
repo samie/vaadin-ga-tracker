@@ -139,7 +139,7 @@ public class GoogleAnalyticsTracker {
                 LogLevel logLevel = productionMode ? LogLevel.NONE : LogLevel.DEBUG;
                 boolean sendHits = SendMode.PRODUCTION.shouldSend(productionMode);
 
-                TrackerConfiguration.create(logLevel, sendHits);
+                config = TrackerConfiguration.create(logLevel, sendHits);
             }
 
             ((TrackerConfigurator) routeLayout).configureTracker(config);
