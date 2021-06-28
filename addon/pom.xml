@@ -17,7 +17,7 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>10.0.0</vaadin.version>
+        <vaadin.version>10.0.19</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
