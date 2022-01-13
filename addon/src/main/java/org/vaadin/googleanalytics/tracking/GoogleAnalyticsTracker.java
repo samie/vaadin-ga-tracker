@@ -316,7 +316,7 @@ public class GoogleAnalyticsTracker {
      *            the category name, not <code>null</code>
      * @param action
      *            the action name, not <code>null</code>
-     * @param fieldsObject
+     * @param fieldsObject field object
      */
     public void sendEvent(String category, String action, Map<String, Serializable> fieldsObject) {
         ga("send", fieldsObject, "event", category, action);

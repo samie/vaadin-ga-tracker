@@ -130,7 +130,7 @@ public class TrackerConfiguration {
     /**
      * Gets the URL from which to load the Google Analytics script.
      * 
-     * @return
+     * @return scriptUrl
      */
     public String getScriptUrl() {
         return scriptUrl;
