@@ -102,11 +102,11 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;");
+                .executeJs("window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;");
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
-            ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
+            ui.getPage().executeJs("window.ga_debug = $0;", toJsonObject(gaDebug));
         }
 
         sendAction(createAction("create", config.getCreateFields(), trackingId, config.getCookieDomain()));
@@ -169,7 +169,7 @@ public class GoogleAnalyticsTracker {
             }
         }
 
-        ui.getPage().executeJavaScript("ga.apply(null, arguments)", action);
+        ui.getPage().executeJs("ga.apply(null, arguments)", action);
     }
 
     private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,
