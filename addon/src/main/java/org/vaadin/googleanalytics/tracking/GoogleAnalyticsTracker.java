@@ -102,7 +102,7 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());");
+                .executeJavaScript("window.dataLayer = window.dataLayer || [];window.gtag = () => {dataLayer.push(arguments)};gtag('js', new Date());");
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
@@ -117,7 +117,7 @@ public class GoogleAnalyticsTracker {
             sendAction(createAction("set", initialValues));
         }
 
-        ui.getPage().addJavaScript(config.getScriptUrl(), LoadMode.LAZY);
+        ui.getPage().addJavaScript(config.getScriptUrl(), LoadMode.EAGER);
 
         inited = true;
     }
@@ -249,8 +249,8 @@ public class GoogleAnalyticsTracker {
      *            command
      */
     public void sendPageView(String location, Map<String, Serializable> fieldsObject) {
-        ga("set", null, "page", location);
-        ga("send", fieldsObject, "pageview");
+        ga("set", null, "page_location", location);
+        ga("event", fieldsObject,"page_view");
     }
 
     /**
@@ -265,7 +265,7 @@ public class GoogleAnalyticsTracker {
      *            the action name, not <code>null</code>
      */
     public void sendEvent(String category, String action) {
-        ga("send", null, "event", category, action);
+        ga("event", null,  category, action);
     }
 
     /**
@@ -283,7 +283,7 @@ public class GoogleAnalyticsTracker {
      *            the event label, not <code>null</code>
      */
     public void sendEvent(String category, String action, String label) {
-        ga("send", null, "event", category, action, label);
+        ga("event", null,  category, action, label);
     }
 
     /**
@@ -303,7 +303,7 @@ public class GoogleAnalyticsTracker {
      *            the event value
      */
     public void sendEvent(String category, String action, String label, int value) {
-        ga("send", null, "event", category, action, label, Integer.valueOf(value));
+        ga("event", null, category, action, label, Integer.valueOf(value));
     }
 
     /**
@@ -320,7 +320,7 @@ public class GoogleAnalyticsTracker {
      * @param fieldsObject field object
      */
     public void sendEvent(String category, String action, Map<String, Serializable> fieldsObject) {
-        ga("send", fieldsObject, "event", category, action);
+        ga("event", fieldsObject, category, action);
     }
 
     /**

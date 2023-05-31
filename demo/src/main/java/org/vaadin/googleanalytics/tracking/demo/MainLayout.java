@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-@EnableGoogleAnalytics(value = "UA-658457-8")
+@EnableGoogleAnalytics(value = "G-FZEJHQG94N")
 public class MainLayout extends VerticalLayout implements RouterLayout, TrackerConfigurator {
     public MainLayout() {
         add(new HorizontalLayout(new RouterLink("Main view", MainView.class),
@@ -18,7 +18,8 @@ public class MainLayout extends VerticalLayout implements RouterLayout, TrackerC
 
     @Override
     public void configureTracker(TrackerConfiguration configuration) {
+        configuration.setCreateField("send_page_view", Boolean.FALSE);
         configuration.setCreateField("allowAnchor", Boolean.FALSE);
-        configuration.setInitialValue("transport", "beacon");
+        configuration.setInitialValue("transport_type", "beacon");
     }
 }
