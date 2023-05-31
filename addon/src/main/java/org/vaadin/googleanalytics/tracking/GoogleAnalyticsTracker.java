@@ -23,7 +23,7 @@ import elemental.json.JsonObject;
  * can be retrieved from a given UI instance ({@link #get(UI)}) or for the
  * current UI instance ({@link #getCurrent()}).
  * <p>
- * Page view commands will automatically be sent for any Flow navigation if the
+ * Page view commands will automatically be sent for any navigation if the
  * tracker can be configured.
  * <p>
  * The first time any command is sent, the tracker will configure itself based
@@ -39,7 +39,7 @@ public class GoogleAnalyticsTracker {
     private String pageViewPrefix = "";
 
     /**
-     * List of actions to send before the next Flow response is created.
+     * List of actions to send before the next response is created.
      * Initialization can only happen after routing has completed since the
      * top-level layout can only be identified at that point. This queue is only
      * needed for actions that are issues before initialization has happened,
@@ -102,13 +102,14 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;");
+                .executeJavaScript("window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());");
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
             ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
         }
 
+        createAction("config", config.getCreateFields(), trackingId);
         sendAction(createAction("create", config.getCreateFields(), trackingId, config.getCookieDomain()));
 
         Map<String, Serializable> initialValues = config.getInitialValues();
@@ -169,7 +170,7 @@ public class GoogleAnalyticsTracker {
             }
         }
 
-        ui.getPage().executeJavaScript("ga.apply(null, arguments)", action);
+        ui.getPage().executeJavaScript("gtag.apply(null, arguments)", action);
     }
 
     private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,

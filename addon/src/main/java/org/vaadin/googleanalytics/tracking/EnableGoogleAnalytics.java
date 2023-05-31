@@ -9,7 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 
 /**
- * Configuration annotation that enables automatic Google Analytics tracking if
+ * Annotation that enables automatic Google Analytics tracking if
  * present on the application's main layout.
  * <p>
  * Any navigation event will be tracked as a page view unless the @{@link Route}
@@ -40,7 +40,7 @@ public @interface EnableGoogleAnalytics {
     String cookieDomain() default TrackerConfiguration.DEFAULT_COOKIE_DOMAIN;
 
     /**
-     * Client-side log level to use when Flow is run in production mode. By
+     * Client-side log level to use when Vaadin is run in production mode. By
      * default, nothing is logged during production.
      * 
      * @return the production log level
@@ -48,7 +48,7 @@ public @interface EnableGoogleAnalytics {
     LogLevel productionLogging() default LogLevel.NONE;
 
     /**
-     * Client-side log level to use when Flow is not run in production mode. By
+     * Client-side log level to use when Vaadin is not run in production mode. By
      * default, debug logging is used when production mode is not enabled.
      * 
      * @return the non-production log level
@@ -90,12 +90,12 @@ public @interface EnableGoogleAnalytics {
         },
         /**
          * Log basic information to the client-side JavaScript console. This is
-         * the default setting when production mode is not enabled in Flow.
+         * the default setting when production mode is not enabled in Vaadin.
          */
         DEBUG {
             @Override
             public void apply(TrackerConfiguration config) {
-                config.setScriptUrl("https://www.google-analytics.com/analytics_debug.js");
+                config.setGaDebug("debug_mode", Boolean.TRUE);
             }
         },
         /**
@@ -133,7 +133,7 @@ public @interface EnableGoogleAnalytics {
             }
         },
         /**
-         * Send tracked page views and events to Google Analytics only when Flow
+         * Send tracked page views and events to Google Analytics only when Vaadin
          * is run in production mode. This is the default setting.
          */
         PRODUCTION {

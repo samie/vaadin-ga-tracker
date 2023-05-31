@@ -24,7 +24,7 @@ public class TrackerConfiguration {
     private String trackingId;
     private String cookieDomain = DEFAULT_COOKIE_DOMAIN;
     private String pageViewPrefix = "";
-    private String scriptUrl = "https://www.google-analytics.com/analytics.js";
+    private String scriptUrl = "https://www.googletagmanager.com/gtag/js";
 
     private final Map<String, Serializable> gaDebug = new LinkedHashMap<>();
 
@@ -71,7 +71,9 @@ public class TrackerConfiguration {
      * Gets the cookie domain setting.
      * 
      * @return the cookie domain setting, not <code>null</code>
+     * @deprecated Since GA4 Configure the cookie domains through analytics interface.
      */
+    @Deprecated()
     public String getCookieDomain() {
         return cookieDomain;
     }
@@ -87,7 +89,9 @@ public class TrackerConfiguration {
      *            the cookie domain value to set, or <code>null</code> to
      *            restore the default value.
      * @return this configuration, for chaining
+     * @deprecated Since GA4 Configure the cookie domains through analytics interface.
      */
+    @Deprecated
     public TrackerConfiguration setCookieDomain(String cookieDomain) {
         this.cookieDomain = Objects.requireNonNull(cookieDomain);
         return this;
@@ -133,7 +137,7 @@ public class TrackerConfiguration {
      * @return scriptUrl
      */
     public String getScriptUrl() {
-        return scriptUrl;
+        return scriptUrl+"?id="+this.trackingId;
     }
 
     /**
