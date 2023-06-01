@@ -102,15 +102,14 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.dataLayer = window.dataLayer || [];window.gtag = () => {dataLayer.push(arguments)};gtag('js', new Date());");
+                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = () => {dataLayer.push(arguments)} ; gtag('js', new Date());");
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
             ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
         }
 
-        createAction("config", config.getCreateFields(), trackingId);
-        sendAction(createAction("create", config.getCreateFields(), trackingId, config.getCookieDomain()));
+        sendAction(createAction("config", config.getCreateFields(), trackingId, config.getCookieDomain()));
 
         Map<String, Serializable> initialValues = config.getInitialValues();
         if (!initialValues.isEmpty()) {
@@ -165,7 +164,7 @@ public class GoogleAnalyticsTracker {
          */
         if (!pageViewPrefix.isEmpty()) {
             // ["set", "page", location]
-            if (action.length == 3 && "set".equals(action[0]) && "page".equals(action[1])) {
+            if (action.length == 3 && "set".equals(action[0]) && "page_location".equals(action[1])) {
                 action[2] = pageViewPrefix + action[2];
             }
         }
