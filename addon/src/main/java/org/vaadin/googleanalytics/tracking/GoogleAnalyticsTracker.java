@@ -2,6 +2,7 @@ package org.vaadin.googleanalytics.tracking;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -102,7 +103,7 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = () => {dataLayer.push(arguments)} ; gtag('js', new Date());");
+                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = () => { window.dataLayer.push(arguments); } ; window.gtag('js', new Date());");
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
@@ -169,7 +170,7 @@ public class GoogleAnalyticsTracker {
             }
         }
 
-        ui.getPage().executeJavaScript("gtag.apply(null, arguments)", action);
+        ui.getPage().executeJavaScript("window.gtag.apply(null, arguments)", action);
     }
 
     private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,
@@ -258,13 +259,16 @@ public class GoogleAnalyticsTracker {
      * reference documentation</a> for information about the semantics of the
      * parameters.
      * 
-     * @param category
+     * @param groupId
      *            the category name, not <code>null</code>
-     * @param action
+     * @param eventName
      *            the action name, not <code>null</code>
      */
-    public void sendEvent(String category, String action) {
-        ga("event", null,  category, action);
+    public void sendEvent(String groupId, String eventName) {
+        Map<String, String> fields = new HashMap<>();
+        fields.put("group_id", groupId);
+        fields.put("event_name", eventName);
+        ga("event", fields, "group_id", "event_name");
     }
 
     /**
