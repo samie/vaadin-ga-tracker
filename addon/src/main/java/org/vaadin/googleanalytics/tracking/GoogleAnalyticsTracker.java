@@ -103,19 +103,23 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = () => { window.dataLayer.push(arguments); } ; window.gtag('js', new Date());");
+                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = function() { window.dataLayer.push(arguments); } ; window.gtag('js', new Date()); console.log('Loaded Vaadin GA'); ");
+
+
+        Map<String, Serializable> createFields = new HashMap<>(config.getCreateFields());
+        Map<String, Serializable> initialValues = config.getInitialValues();
+        if (!initialValues.isEmpty()) {
+            createFields.putAll(initialValues);
+        }
 
         Map<String, Serializable> gaDebug = config.getGaDebug();
         if (!gaDebug.isEmpty()) {
+            createFields.putAll(gaDebug);
+            // Todo: ga_debug is legacy, not sure if that is needed any more with GA4
             ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
         }
 
-        sendAction(createAction("config", config.getCreateFields(), trackingId, config.getCookieDomain()));
-
-        Map<String, Serializable> initialValues = config.getInitialValues();
-        if (!initialValues.isEmpty()) {
-            sendAction(createAction("set", initialValues));
-        }
+        sendAction(createAction("config",createFields , trackingId));
 
         ui.getPage().addJavaScript(config.getScriptUrl(), LoadMode.EAGER);
 
