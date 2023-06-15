@@ -177,7 +177,7 @@ public class GoogleAnalyticsTracker {
         ui.getPage().executeJavaScript("if (Vaadin.developmentMode) console.log(arguments); window.gtag.apply(null, arguments)", action);
     }
 
-    private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,
+    private static Serializable[] createAction(String command, Map<String, Serializable> fieldsObject,
             Serializable... fields) {
         if (fields == null) {
             fields = new Serializable[] { null };
@@ -214,7 +214,7 @@ public class GoogleAnalyticsTracker {
      * @param fields
      *            a list of field values to send
      */
-    public void ga(String command, Map<String, ? extends Serializable> fieldsObject, Serializable... fields) {
+    public void ga(String command, Map<String,Serializable> fieldsObject, Serializable... fields) {
         if (pendingActions.isEmpty()) {
             ui.beforeClientResponse(ui, context -> {
                 if (!inited) {
@@ -274,7 +274,7 @@ public class GoogleAnalyticsTracker {
      *            the action name, not <code>null</code>
      */
     public void sendEvent(String groupId, String eventName) {
-        Map<String, String> fields = new HashMap<>();
+        Map<String, Serializable> fields = new HashMap<>();
         fields.put("group_id", groupId);
         fields.put("event_name", eventName);
         ga("event", fields, eventName);
