@@ -249,7 +249,12 @@ public class GoogleAnalyticsTracker {
      *            command
      */
     public void sendPageView(String location, Map<String, Serializable> fieldsObject) {
-        ga("set", null, "page_location", location);
+        if (fieldsObject == null) {
+            fieldsObject = new HashMap<>();
+        }
+        if (!fieldsObject.containsKey("page_location")) {
+            fieldsObject.put("page_location", location);
+        }
         ga("event", fieldsObject,"page_view");
     }
 
