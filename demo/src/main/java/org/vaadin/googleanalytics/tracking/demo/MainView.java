@@ -13,11 +13,11 @@ import com.vaadin.flow.router.Route;
 public class MainView extends VerticalLayout {
     public MainView() {
         add(new Text("Main view"),
-                new Button("Send an event", click -> {
-                    GoogleAnalyticsTracker.getCurrent().sendEvent("myevent",
-                            "Event button");
+                new Button("Send 'my_event'", click -> {
+                    GoogleAnalyticsTracker.getCurrent().sendEvent("my_group",
+                            "my_event");
                 }),
-                new Button("Send an page view", click -> {
+                new Button("Send '/mypage' view", click -> {
                     GoogleAnalyticsTracker.getCurrent().sendPageView("/mypage");
                 }));
     }
