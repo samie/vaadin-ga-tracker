@@ -174,7 +174,7 @@ public class GoogleAnalyticsTracker {
             }
         }
 
-        ui.getPage().executeJavaScript("window.gtag.apply(null, arguments)", action);
+        ui.getPage().executeJavaScript("if (Vaadin.developmentMode) console.log(arguments); window.gtag.apply(null, arguments)", action);
     }
 
     private static Serializable[] createAction(String command, Map<String, ? extends Serializable> fieldsObject,
