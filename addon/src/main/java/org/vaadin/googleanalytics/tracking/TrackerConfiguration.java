@@ -183,7 +183,11 @@ public class TrackerConfiguration {
      * @return this configuration, for chaining
      */
     public TrackerConfiguration setInitialValue(String name, Serializable value) {
-        initialValues.put(Objects.requireNonNull(name), value);
+        if (value != null) {
+            initialValues.put(Objects.requireNonNull(name), value);
+        } else {
+            initialValues.remove(Objects.requireNonNull(name));
+        }
         return this;
     }
 
