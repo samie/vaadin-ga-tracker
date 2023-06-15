@@ -71,7 +71,7 @@ public class TrackerConfiguration {
      * Gets the cookie domain setting.
      * 
      * @return the cookie domain setting, not <code>null</code>
-     * @deprecated Since GA4 Configure the cookie domains through analytics interface.
+     * @deprecated In GA4 it is recommended to configure cookie domains through admin interface.
      */
     @Deprecated()
     public String getCookieDomain() {
@@ -89,7 +89,7 @@ public class TrackerConfiguration {
      *            the cookie domain value to set, or <code>null</code> to
      *            restore the default value.
      * @return this configuration, for chaining
-     * @deprecated Since GA4 Configure the cookie domains through analytics interface.
+     * @deprecated In GA4 it is recommended to configure cookie domains through admin interface.
      */
     @Deprecated
     public TrackerConfiguration setCookieDomain(String cookieDomain) {

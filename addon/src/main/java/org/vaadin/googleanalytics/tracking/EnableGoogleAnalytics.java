@@ -34,9 +34,10 @@ public @interface EnableGoogleAnalytics {
 
     /**
      * The cookie domain setting. By default, <code>auto</code> is used.
-     * 
+     * @deprecated Since GA4 Configure the cookie domains through analytics interface.
      * @return the cookie domain setting
      */
+    @Deprecated
     String cookieDomain() default TrackerConfiguration.DEFAULT_COOKIE_DOMAIN;
 
     /**
