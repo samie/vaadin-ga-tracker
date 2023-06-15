@@ -268,7 +268,7 @@ public class GoogleAnalyticsTracker {
         Map<String, String> fields = new HashMap<>();
         fields.put("group_id", groupId);
         fields.put("event_name", eventName);
-        ga("event", fields, "group_id", "event_name");
+        ga("event", fields, eventName);
     }
 
     /**
