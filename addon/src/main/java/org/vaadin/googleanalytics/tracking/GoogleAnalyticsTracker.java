@@ -215,6 +215,10 @@ public class GoogleAnalyticsTracker {
      *            a list of field values to send
      */
     public void ga(String command, Map<String,Serializable> fieldsObject, Serializable... fields) {
+        if (fieldsObject != null) {
+            UI ui = UI.getCurrent();
+            fieldsObject.put("vaadin_ui", ui != null? ui.getUIId() : -1);
+        }
         if (pendingActions.isEmpty()) {
             ui.beforeClientResponse(ui, context -> {
                 if (!inited) {
