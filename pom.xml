@@ -4,13 +4,13 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>googleanalyticstracker-addon</artifactId>
 	<packaging>pom</packaging>
-    <version>4.1.0</version>
+    <version>5.1-SNAPSHOT</version>
 	<name>GoogleAnalyticsTracker Project</name>
 
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>10.0.19</vaadin.version>
+		<vaadin.version>24.0.0</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -41,38 +41,6 @@
 		</license>
 	</licenses>
 
-	<!-- In case we need some addons or Vaadin snapshots
-	<repositories>
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
-		</repository>
-		<repository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
-	-->
 	<build>
 			<plugins>
 				<plugin>

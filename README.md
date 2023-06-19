@@ -2,12 +2,13 @@
 [![Stars on Vaadin Directory](https://img.shields.io/vaadin-directory/star/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
 [![Latest version](https://img.shields.io/vaadin-directory/v/googleanalyticstracker.svg)](https://vaadin.com/directory/component/googleanalyticstracker)
 
-# Google analytics tracking integration for Vaadin 10+
+# Google analytics tracking integration for Vaadin 24+
 
 Sources for other Vaadin versions are in their own branches:
 * [Vaadin 6](https://github.com/samie/vaadin-ga-tracker/tree/vaadin6)
 * [Vaadin 7](https://github.com/samie/vaadin-ga-tracker/tree/vaadin7)
 * [Vaadin 8](https://github.com/samie/vaadin-ga-tracker/tree/vaadin8)
+* [Vaadin 10-23](https://github.com/samie/vaadin-ga-tracker/tree/vaadin10)
 
 Track your Vaadin application usage using Google Analytics.
 

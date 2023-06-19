@@ -15,3 +15,5 @@
 .project
 .settings
 .classpath
+demo/frontend/generated
+demo/frontend/index.html
