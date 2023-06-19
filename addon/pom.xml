@@ -5,7 +5,7 @@
     <artifactId>googleanalyticstracker</artifactId>
     <packaging>jar</packaging>
     <name>GoogleAnalyticsTracker</name>
-    <version>4.1.0</version>
+    <version>5.1-SNAPSHOT</version>
     <!-- No parent specified to be able to make standalone component for Directory -->
 
     <organization>
@@ -16,11 +16,11 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>10.0.19</vaadin.version>
+        <vaadin.version>24.0.0</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         
         <!-- ZIP Manifest fields -->
         <Implementation-Version>${project.version}</Implementation-Version>
@@ -44,22 +44,26 @@
     </dependencyManagement>
 
     <dependencies>
-      <dependency>
-          <groupId>com.vaadin</groupId>
-          <artifactId>flow-server</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-          <version>3.1.0</version>
-          <scope>provided</scope>
-      </dependency>
-
-        <!-- This can be replaced with TestNG or some other test framework supported by the surefire plugin -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>com.vaadin</groupId>
+            <!-- Consider limiting the dependencies to flow-server only something, but for most end users depending on vaadin-core is ok -->
+            <artifactId>vaadin-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-testbench</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -70,7 +74,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
                 <configuration>
                     <archive>
                         <index>true</index>
