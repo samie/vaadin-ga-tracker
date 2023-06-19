@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
-@EnableGoogleAnalytics(value = "G-T10CSWS6MS")
+@EnableGoogleAnalytics(value = "G-69HHY4H0SJ", pageviewPrefix = "v24")
 public class MainLayout extends VerticalLayout implements RouterLayout, TrackerConfigurator {
     public MainLayout() {
         add(new HorizontalLayout(new RouterLink("Main view", MainView.class),
