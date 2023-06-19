@@ -9,7 +9,7 @@ import com.vaadin.ui.UI;
  * Component for triggering Google Analytics page views. Usage:
  *
  * <pre>
- * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker("UA-658457-8", "vaadin.com");
+ * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker("G-69HHY4H0SJ", "vaadin.com");
  * tracker.extend(myUI);
  *   ....
  * tracker.trackPageview("/samplecode/googleanalytics");
@@ -18,7 +18,7 @@ import com.vaadin.ui.UI;
  * To connect it to a Navigator to automatically track page views, you can do
  *
  * <pre>
- * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(&quot;UA-658457-8&quot;,
+ * GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(&quot;G-69HHY4H0SJ&quot;,
  *         &quot;vaadin.com&quot;);
  * tracker.extend(myUI);
  * myUI.getNavigator().addViewChangeListener(tracker);
@@ -69,7 +69,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * Instantiate new Google Analytics tracker by id.
      *
      * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'. Universal tracker is created by default.
+     * 'G-69HHY4H0SJ'. Universal tracker is created by default.
      */
     public GoogleAnalyticsTracker(String trackerId) {
         setTrackerId(trackerId);
@@ -79,7 +79,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * Instantiate new Google Analytics tracker by id and domain.
      *
      * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'.
+     * 'G-69HHY4H0SJ'.
      * @param domainName The name of the domain to be tracked. Something like
      * 'vaadin.com'. Universal tracker is created by default.
      */
@@ -92,7 +92,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      *   Instantiate new Google Analytics tracker by id and domain.
      *
      * @param trackerId The tracking id from Google Analytics. Something like
-     * 'UA-658457-8'.
+     * 'G-69HHY4H0SJ'.
      * @param domainName The name of the domain to be tracked. Something like
      * 'vaadin.com'. Universal tracker is created by default.
      * @param trackingPrefix Page id prefix to be used in all trackPageView calls, like "myapp/".
@@ -108,7 +108,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
      * Instantiate new Google Analytics tracker by id and domain.
      *
      * @param trackerId The tracking id from Google Analytics. Like
-     * 'UA-658457-8'.
+     * 'G-69HHY4H0SJ'.
      * @param domainName The name of the domain to be tracked. Like
      * 'vaadin.com'. Universal tracker is created by default.
      * @param userId a unique, persistent, and non-personally identifiable string ID.
@@ -148,7 +148,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     /**
      * Gets the Google Analytics tracking id.
      *
-     * @return Tracking id like 'UA-658457-8'.
+     * @return Tracking id like 'G-69HHY4H0SJ'.
      */
     public String getTrackerId() {
         return getState().trackerId;
@@ -237,7 +237,7 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     /**
      * Sets the Google Analytics tracking id.
      *
-     * @param trackerId The tracking id like 'UA-586743-2'
+     * @param trackerId The tracking id like 'G-69HHY4H0SJ'
      */
     public void setTrackerId(String trackerId) {
         getState().trackerId = trackerId;
