@@ -6,7 +6,7 @@
     <groupId>com.example.application</groupId>
     <artifactId>myapp</artifactId>
     <name>myapp</name>
-    <version>5.0.0</version>
+    <version>5.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>
@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.vaadin.addons</groupId>
         <artifactId>googleanalyticstracker-addon</artifactId>
-        <version>5.0.0</version>
+        <version>5.1-SNAPSHOT</version>
     </parent>
 
     <repositories>
