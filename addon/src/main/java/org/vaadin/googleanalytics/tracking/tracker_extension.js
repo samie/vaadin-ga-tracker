@@ -57,9 +57,13 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
     this.ga4Init = function() {
         var state = self.getState();
 		var trackerId = state.trackerId;
+		var userId = state.userId;
+		
 		window.dataLayer = window.dataLayer || [];
 		gtag('js', new Date());
-		gtag('config', trackerId);
+		gtag('config', trackerId, {
+               'user_id': userId
+        });
     };
 
 
