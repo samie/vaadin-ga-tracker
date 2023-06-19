@@ -23,14 +23,14 @@ public class GoogleAnalyticsTrackerDemo extends UI {
 
         // Create a tracker for vaadin.com domain and "ga-demo" prefix
         GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(
-                "UA-658457-8", "none", "/ga-demo/");
+                "G-69HHY4H0SJ", "none", "/ga-demo/");
         
         // Use this if you still haven't upgraded to Universal tracking API
         // tracker.setUniversalTracking(false);
 
         // Example: Create a tracker for vaadin.com domain.
         // GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(
-        // "UA-658457-8", "vaadin.com");
+        // "G-69HHY4H0SJ, "vaadin.com");
         
         tracker.setUserId("12345"); //optional: set the User-ID. Must also enable User-ID tracking within Google Analytics admin.
         
