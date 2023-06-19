@@ -103,7 +103,7 @@ public class GoogleAnalyticsTracker {
         pageViewPrefix = config.getPageViewPrefix();
 
         ui.getPage()
-                .executeJavaScript("window.dataLayer = window.dataLayer || []; window.gtag = function() { window.dataLayer.push(arguments); } ; window.gtag('js', new Date()); console.log('Loaded Vaadin GA'); ");
+                .executeJs("window.dataLayer = window.dataLayer || []; window.gtag = function() { window.dataLayer.push(arguments); } ; window.gtag('js', new Date()); console.log('Loaded Vaadin GA'); ");
 
 
         Map<String, Serializable> createFields = new HashMap<>(config.getCreateFields());
@@ -116,7 +116,7 @@ public class GoogleAnalyticsTracker {
         if (!gaDebug.isEmpty()) {
             createFields.putAll(gaDebug);
             // Todo: ga_debug is legacy, not sure if that is needed any more with GA4
-            ui.getPage().executeJavaScript("window.ga_debug = $0;", toJsonObject(gaDebug));
+            ui.getPage().executeJs("window.ga_debug = $0;", toJsonObject(gaDebug));
         }
 
         sendAction(createAction("config",createFields , trackingId));
@@ -174,7 +174,7 @@ public class GoogleAnalyticsTracker {
             }
         }
 
-        ui.getPage().executeJavaScript("if (Vaadin.developmentMode) console.log(arguments); window.gtag.apply(null, arguments)", action);
+        ui.getPage().executeJs("if (Vaadin.developmentMode) console.log(arguments); window.gtag.apply(null, arguments)", action);
     }
 
     private static Serializable[] createAction(String command, Map<String, Serializable> fieldsObject,
