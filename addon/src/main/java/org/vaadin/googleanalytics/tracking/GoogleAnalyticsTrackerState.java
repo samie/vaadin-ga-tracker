@@ -10,6 +10,7 @@ public class GoogleAnalyticsTrackerState extends JavaScriptExtensionState {
     public boolean allowAnchor = true;
     public boolean allowLinker = false;
     public String domainName  = "none";
+    public boolean debugMode  = false;
     public String userId = null;
 
 }
