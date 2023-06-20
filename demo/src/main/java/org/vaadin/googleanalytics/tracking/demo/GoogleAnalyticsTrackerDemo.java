@@ -23,10 +23,10 @@ public class GoogleAnalyticsTrackerDemo extends UI {
 
         // Create a tracker for vaadin.com domain and "ga-demo" prefix
         GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(
-                "G-69HHY4H0SJ", "none", "/ga-demo/");
-        
-        // Use this if you still haven't upgraded to Universal tracking API
-        // tracker.setUniversalTracking(false);
+                "G-69HHY4H0SJ", "auto", "/ga-demo/");
+
+        // Set the GA4 debug mode. This allows using the DebugView in Google Analytics.
+        tracker.setDebugMode(true);
 
         // Example: Create a tracker for vaadin.com domain.
         // GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(
