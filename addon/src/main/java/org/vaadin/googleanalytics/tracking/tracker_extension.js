@@ -56,14 +56,22 @@ window.org_vaadin_googleanalytics_tracking_GoogleAnalyticsTracker = function() {
 
     this.ga4Init = function() {
         var state = self.getState();
-		var trackerId = state.trackerId;
-		var userId = state.userId;
-		
-		window.dataLayer = window.dataLayer || [];
-		gtag('js', new Date());
-		gtag('config', trackerId, {
-               'user_id': userId
-        });
+        var trackerId = state.trackerId;
+        var userId = state.userId;
+        var debugMode = state.debugMode;
+
+        window.dataLayer = window.dataLayer || [];
+        gtag('js', new Date());
+        if (debugMode) {
+          gtag('config', trackerId, {
+                 'user_id': userId,
+                 'debug_mode': true
+          });
+        } else {
+          gtag('config', trackerId, {
+                 'user_id': userId
+          });
+        }
     };
 
 

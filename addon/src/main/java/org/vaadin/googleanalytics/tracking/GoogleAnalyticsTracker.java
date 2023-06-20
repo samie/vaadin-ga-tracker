@@ -235,6 +235,26 @@ public class GoogleAnalyticsTracker extends AbstractJavaScriptExtension
     }
 
     /**
+     * Sets the Google Analytics tracking into debug mode.
+     * This is only used in the new GA4 mode.
+     *
+     * @param debugMode Should the debug mode be enabled.
+     */
+    public void setDebugMode(boolean debugMode) {
+        getState().debugMode = debugMode;
+    }
+
+    /**
+     * Is the Google Analytics tracking using debug mode.
+     * This is only used in the new GA4 mode.
+     *
+     * @return <code>true</code> if GA4 debug mode is enabled, false otherwise
+     */
+    public boolean isDebugMode() {
+        return getState().debugMode;
+    }
+
+    /**
      * Sets the Google Analytics tracking id.
      *
      * @param trackerId The tracking id like 'G-69HHY4H0SJ'
