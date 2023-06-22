@@ -4,7 +4,7 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>googleanalyticstracker-addon</artifactId>
 	<packaging>pom</packaging>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.1.1</version>
 	<name>GoogleAnalyticsTracker Project</name>
 
 	<properties>
