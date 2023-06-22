@@ -25,6 +25,10 @@
         <Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
     </properties>
 
+    <organization>
+        <name>Sami Ekblad</name>
+        <url>https://github.com/samie/vaadin-ga-tracker</url>
+    </organization>
 
     <dependencies>
         <dependency>
@@ -43,7 +47,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -66,6 +70,7 @@
                             <!-- Package format version - do not change -->
                             <Vaadin-Package-Version>1</Vaadin-Package-Version>
                             <Vaadin-License-Title>${Vaadin-License-Title}</Vaadin-License-Title>
+                            <Implementation-Vendor>${Implementation-Vendor}</Implementation-Vendor>
                         </manifestEntries>
                     </archive>
                 </configuration>
