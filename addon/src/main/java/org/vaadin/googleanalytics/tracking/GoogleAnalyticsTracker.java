@@ -32,7 +32,7 @@ import elemental.json.JsonObject;
  * annotated with @{@link EnableGoogleAnalytics} or implement
  * {@link TrackerConfigurator} for the configuration to succeed.
  */
-public class GoogleAnalyticsTracker {
+public class GoogleAnalyticsTracker implements Serializable {
     private final UI ui;
 
     private boolean inited = false;
