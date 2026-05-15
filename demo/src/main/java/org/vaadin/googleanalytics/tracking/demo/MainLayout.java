@@ -13,7 +13,9 @@ import com.vaadin.flow.router.RouterLink;
 public class MainLayout extends VerticalLayout implements RouterLayout, TrackerConfigurator {
     public MainLayout() {
         add(new HorizontalLayout(new RouterLink("Main view", MainView.class),
-                new RouterLink("Second view", SecondView.class), new RouterLink("Ignored view", IgnoredView.class)));
+                new RouterLink("Second view", SecondView.class),
+                new RouterLink("Ignored view", IgnoredView.class),
+                new RouterLink("Toggle tracking", ToggleTrackingView.class)));
     }
 
     @Override
