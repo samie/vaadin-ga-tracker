@@ -13,11 +13,7 @@ import org.vaadin.googleanalytics.tracking.EnableGoogleAnalytics.SendMode;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.internal.JsonCodec;
-import com.vaadin.flow.internal.JsonUtils;
 import com.vaadin.flow.shared.ui.LoadMode;
-
-import elemental.json.JsonObject;
 
 /**
  * Sends commands to Google Analytics in the browser. An instance of the tracker
@@ -33,6 +29,7 @@ import elemental.json.JsonObject;
  * {@link TrackerConfigurator} for the configuration to succeed.
  */
 public class GoogleAnalyticsTracker implements Serializable {
+
     private final UI ui;
 
     private boolean inited = false;
@@ -46,7 +43,16 @@ public class GoogleAnalyticsTracker implements Serializable {
      * needed for actions that are issues before initialization has happened,
      * but it is still used in all cases to keep the internal logic simpler.
      */
-    private ArrayList<Serializable[]> pendingActions = new ArrayList<>();
+    private final List<Action> pendingActions = new ArrayList<>();
+
+    /**
+     * A queued gtag call: the positional arguments (command + field values) and an optional fields
+     * object. {@link #sendAction} serializes the fields to JSON and hands it to the browser as a
+     * single trailing {@code String} param to {@code JSON.parse} — no Vaadin-internal JSON codec,
+     * identical behaviour on Vaadin 24 and 25.
+     */
+    private record Action(Serializable[] args, Map<String, Serializable> fields) implements Serializable {
+    }
 
     private GoogleAnalyticsTracker(UI ui) {
         this.ui = ui;
@@ -54,9 +60,9 @@ public class GoogleAnalyticsTracker implements Serializable {
 
     /**
      * Gets or creates a tracker for the current UI.
-     * 
+     *
      * @see UI#getCurrent()
-     * 
+     *
      * @return the tracker for the current UI, or <code>null</code> if there is
      *         no current UI
      */
@@ -70,7 +76,7 @@ public class GoogleAnalyticsTracker implements Serializable {
 
     /**
      * Gets or creates a tracker for the given UI.
-     * 
+     *
      * @param ui
      *            the UI for which to get at tracker, not <code>null</code>
      * @return the tracker for the given ui
@@ -116,7 +122,7 @@ public class GoogleAnalyticsTracker implements Serializable {
         if (!gaDebug.isEmpty()) {
             createFields.putAll(gaDebug);
             // Todo: ga_debug is legacy, not sure if that is needed any more with GA4
-            ui.getPage().executeJs("window.ga_debug = $0;", toJsonObject(gaDebug));
+            ui.getPage().executeJs("window.ga_debug = JSON.parse($0);", toJsonString(gaDebug));
         }
 
         sendAction(createAction("config",createFields , trackingId));
@@ -161,51 +167,120 @@ public class GoogleAnalyticsTracker implements Serializable {
         return routeChain.get(routeChain.size() - 1);
     }
 
-    private void sendAction(Serializable[] action) {
+    private void sendAction(Action action) {
+        Serializable[] args = action.args();
+        Map<String, Serializable> fields = action.fields();
         /*
          * Append prefix for page views. This is done in the send phase so that
          * the prefix is considered also if the page view was created before the
          * prefix was read from the config.
          */
-        if (!pageViewPrefix.isEmpty()) {
-            // ["set", "page", location]
-            if (action.length == 3 && "set".equals(action[0]) && "page_location".equals(action[1])) {
-                action[2] = pageViewPrefix + action[2];
-            }
+        if (!pageViewPrefix.isEmpty() && fields != null
+                && fields.get("page_location") instanceof String location) {
+            fields.put("page_location", pageViewPrefix + location);
         }
 
-        ui.getPage().executeJs("if (Vaadin.developmentMode) console.log(arguments); window.gtag.apply(null, arguments)", action);
+        String fieldsJson = toJsonString(fields);
+        if (fieldsJson == null) {
+            ui.getPage().executeJs("window.gtag.apply(null, arguments)", args);
+        } else {
+            // The fields object is passed as a single trailing JSON string; the browser parses it
+            // back into a real object before applying gtag. No server-side Vaadin-internal JSON codec
+            // is involved, so this works identically on Vaadin 24 and 25.
+            ui.getPage().executeJs(
+                    "const x = Array.prototype.slice.call(arguments);"
+                            + "x.push(JSON.parse(x.pop()));"
+                            + "if (window.Vaadin && window.Vaadin.developmentMode) console.log(x);"
+                            + "window.gtag.apply(null, x);",
+                    append(args, fieldsJson));
+        }
     }
 
-    private static Serializable[] createAction(String command, Map<String, Serializable> fieldsObject,
-            Serializable... fields) {
+    private static Serializable[] append(Serializable[] arr, Serializable tail) {
+        Serializable[] out = new Serializable[arr.length + 1];
+        System.arraycopy(arr, 0, out, 0, arr.length);
+        out[arr.length] = tail;
+        return out;
+    }
+
+    private static Action createAction(String command, Map<String, Serializable> fieldsObject,
+                                       Serializable... fields) {
         if (fields == null) {
             fields = new Serializable[] { null };
         }
 
-        // [command, fields...]
-        Stream<Serializable> argsStream = Stream.concat(Stream.of(command), Stream.of(fields));
-        if (fieldsObject != null && !fieldsObject.isEmpty()) {
-            // [command, fields..., fieldsObject]
-            argsStream = Stream.concat(argsStream, Stream.of(toJsonObject(fieldsObject)));
-        }
-
-        return argsStream.toArray(Serializable[]::new);
+        Serializable[] args = Stream.concat(Stream.of(command), Stream.of(fields))
+                .toArray(Serializable[]::new);
+        Map<String, Serializable> copy = fieldsObject == null || fieldsObject.isEmpty()
+                ? null : new HashMap<>(fieldsObject);
+        return new Action(args, copy);
     }
 
-    private static JsonObject toJsonObject(Map<String, ? extends Serializable> map) {
+    /**
+     * Serializes a flat gtag fields map to a JSON string, with no JSON library dependency. gtag field
+     * objects are flat maps of strings, numbers and booleans, which is all this handles — numbers and
+     * booleans are emitted bare, everything else as a quoted (and escaped) string.
+     */
+    private static String toJsonString(Map<String, ? extends Serializable> map) {
         if (map == null || map.isEmpty()) {
             return null;
         }
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
+        for (Map.Entry<String, ? extends Serializable> e : map.entrySet()) {
+            if (!first) {
+                sb.append(',');
+            }
+            first = false;
+            writeJsonString(sb, e.getKey());
+            sb.append(':');
+            writeJsonValue(sb, e.getValue());
+        }
+        return sb.append('}').toString();
+    }
 
-        return JsonUtils.createObject(map, JsonCodec::encodeWithoutTypeInfo);
+    private static void writeJsonValue(StringBuilder sb, Serializable value) {
+        if (value == null) {
+            sb.append("null");
+        } else if (value instanceof Number || value instanceof Boolean) {
+            if (value instanceof Double doubleValue && !Double.isFinite(doubleValue)
+                    || value instanceof Float floatValue && !Float.isFinite(floatValue)) {
+                throw new IllegalArgumentException("JSON numbers must be finite");
+            }
+            sb.append(value);
+        } else {
+            writeJsonString(sb, value.toString());
+        }
+    }
+
+    private static void writeJsonString(StringBuilder sb, String s) {
+        sb.append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                case '\b': sb.append("\\b"); break;
+                case '\f': sb.append("\\f"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
     }
 
     /**
      * Sends a generic command to Google Analytics. This corresponds to a
      * client-side call to the <code>ga</code> function except that fieldsObject
      * is not the last parameter because of the way varargs work in Java.
-     * 
+     *
      * @param command
      *            the name of the command to send, not <code>null</code>
      * @param fieldsObject
@@ -235,7 +310,7 @@ public class GoogleAnalyticsTracker implements Serializable {
 
     /**
      * Sends a page view command to Google Analytics.
-     * 
+     *
      * @param location
      *            the location of the viewed page, not <code>null</code>
      */
@@ -249,7 +324,7 @@ public class GoogleAnalyticsTracker implements Serializable {
      * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
      * reference documentation</a> for more information about supported
      * additional fields.
-     * 
+     *
      * @param location
      *            the location of the viewed page, not <code>null</code>
      * @param fieldsObject
@@ -271,7 +346,7 @@ public class GoogleAnalyticsTracker implements Serializable {
      * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
      * reference documentation</a> for information about the semantics of the
      * parameters.
-     * 
+     *
      * @param groupId
      *            the category name, not <code>null</code>
      * @param eventName
@@ -290,7 +365,7 @@ public class GoogleAnalyticsTracker implements Serializable {
      * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
      * reference documentation</a> for information about the semantics of the
      * parameters.
-     * 
+     *
      * @param category
      *            the category name, not <code>null</code>
      * @param action
@@ -308,7 +383,7 @@ public class GoogleAnalyticsTracker implements Serializable {
      * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
      * reference documentation</a> for information about the semantics of the
      * parameters.
-     * 
+     *
      * @param category
      *            the category name, not <code>null</code>
      * @param action
@@ -328,7 +403,7 @@ public class GoogleAnalyticsTracker implements Serializable {
      * "https://developers.google.com/analytics/devguides/collection/analyticsjs/tracker-object-reference#send">the
      * reference documentation</a> for information about the semantics of the
      * parameters.
-     * 
+     *
      * @param category
      *            the category name, not <code>null</code>
      * @param action
@@ -341,7 +416,7 @@ public class GoogleAnalyticsTracker implements Serializable {
 
     /**
      * Checks whether this tracker has been initialized.
-     * 
+     *
      * @return <code>true</code> if this tracker is initialized, otherwise
      *         <code>false</code>
      */
